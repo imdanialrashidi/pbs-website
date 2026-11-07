@@ -1,0 +1,12 @@
+---
+interface Props {
+  label: string;
+}
+
+const { label } = Astro.props;
+---
+
+<div class="media__fallback">
+  <span class="media__fallback-mark" aria-hidden="true">—</span>
+  <span class="caption">{label}</span>
+</div>

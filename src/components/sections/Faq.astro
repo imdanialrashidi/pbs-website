@@ -1,0 +1,48 @@
+---
+import type { SiteConfig } from "../../config/types";
+import Icon from "../ui/Icon.astro";
+import Section from "../ui/Section.astro";
+import SectionHeading from "../ui/SectionHeading.astro";
+import type { SectionSlot } from "../../lib/sections";
+
+interface Props {
+  site: SiteConfig;
+  section: SectionSlot;
+}
+
+const { site, section } = Astro.props;
+const faq = site.faq;
+---
+
+{
+  faq && (
+    <Section id={section.id} labelledby={section.headingId}>
+      <div class="faq__layout">
+        <SectionHeading
+          eyebrow={faq.eyebrow}
+          headline={faq.headline}
+          intro={faq.intro}
+          id={section.headingId}
+          layout="aside"
+          sticky
+        />
+
+        <div class="faq__list">
+          {faq.items.map((item, index) => (
+            <details class="faq__item" open={index === 0}>
+              <summary class="faq__summary">
+                <span class="faq__question">{item.question}</span>
+                <span class="faq__icon" aria-hidden="true">
+                  <Icon name="plus" size={17} />
+                </span>
+              </summary>
+              <div class="faq__answer">
+                <p>{item.answer}</p>
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </Section>
+  )
+}

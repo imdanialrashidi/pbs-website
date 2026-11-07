@@ -1,0 +1,79 @@
+---
+import type { SiteConfig } from "../../config/types";
+import { pageLanguage } from "../../lib/language";
+import { hasSection, pageFor } from "../../lib/sections";
+import { base, href } from "../../lib/url";
+import Logo from "../ui/Logo.astro";
+
+interface Props {
+  site: SiteConfig;
+}
+
+const { site } = Astro.props;
+const language = pageLanguage(site);
+const ui = language.t;
+const page = pageFor(site);
+const year = language.year();
+const contact = hasSection(page, "contact") ? site.contact : undefined;
+
+const footerLinks = [
+  ...page.navigation,
+  ...(contact ? [{ label: ui.contact, anchor: "#contact" as const }] : []),
+].filter((item, index, items) => items.findIndex((candidate) => candidate.anchor === item.anchor) === index);
+---
+
+<footer class="site-footer">
+  <div class="shell">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <Logo brand={site.brand} href={base} />
+        <p class="footer__tagline">{site.footer.tagline}</p>
+      </div>
+
+      <nav class="footer__nav" aria-label={ui.footerNavigation}>
+        <div>
+          <p class="footer__heading">{ui.explore}</p>
+          <div class="footer__links">
+            {footerLinks.map((item) => <a href={href(item.anchor)}>{item.label}</a>)}
+          </div>
+        </div>
+        <div>
+          <p class="footer__heading">{ui.elsewhere}</p>
+          <div class="footer__links">
+            <a href={href("#hero")}>{ui.backToTop}</a>
+            <a href={site.footer.photoCredit.href} target="_blank" rel="noreferrer">
+              {site.footer.photoCredit.label}
+            </a>
+          </div>
+        </div>
+      </nav>
+
+      {contact && (
+        <div class="footer__contact">
+          <p class="footer__heading">{ui.findUs}</p>
+          <a href={`mailto:${contact.details.email}`}>
+            <bdi dir="ltr">{contact.details.email}</bdi>
+          </a>
+          <address>{contact.details.address}</address>
+          <p>{contact.details.hours}</p>
+        </div>
+      )}
+    </div>
+
+    <p class="footer__wordmark" aria-hidden="true">{site.brand.name}</p>
+
+    <div class="footer__bottom">
+      <div>
+        {
+          site.demo.enabled && (
+            <p class="footer__demo-note">{site.demo.note}</p>
+          )
+        }
+        <p class="footer__meta">
+          <span>© {year} {site.brand.name}</span>
+          <span>{ui.staticNoTracking}</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>

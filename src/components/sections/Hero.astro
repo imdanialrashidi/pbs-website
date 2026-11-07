@@ -1,0 +1,102 @@
+---
+import type { SiteConfig } from "../../config/types";
+import Button from "../ui/Button.astro";
+import HeadlineText from "../ui/Headline.astro";
+import Figure from "../ui/Figure.astro";
+import { pageLanguage } from "../../lib/language";
+import type { SectionSlot } from "../../lib/sections";
+
+interface Props {
+  site: SiteConfig;
+  section: SectionSlot;
+}
+
+const { site, section } = Astro.props;
+const { hero, brand } = site;
+const ui = pageLanguage(site).t;
+const isImmersive = hero.variant === "immersive";
+---
+
+<section
+  id={section.id}
+  class:list={["hero", isImmersive ? "hero--immersive" : "hero--split"]}
+  aria-labelledby={section.headingId}
+>
+  {
+    isImmersive ? (
+      <>
+        <div class="hero__media">
+          <Figure
+            role="banner"
+            image={hero.image.src}
+            alt={hero.image.alt}
+            position={hero.image.position}
+            class="hero__image"
+            unavailableLabel={ui.imageUnavailable}
+          />
+        </div>
+        <div class="shell hero__immersive-inner">
+          <p class="eyebrow hero__eyebrow">{hero.eyebrow}</p>
+          <h1 id={section.headingId} class="display display--xl hero__title">
+            <HeadlineText headline={hero.headline} />
+          </h1>
+          <p class="hero__intro">{hero.intro}</p>
+          <div class="hero__actions">
+            {hero.actions.map((action) => <Button {...action} />)}
+          </div>
+          <dl class="hero__facts">
+            {
+              hero.facts.map((fact) => (
+                <div class="hero__fact">
+                  <dt>{fact.label}</dt>
+                  <dd>{fact.value}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </div>
+      </>
+    ) : (
+      <div class="shell hero__grid">
+        <div class="hero__headline">
+          <p class="eyebrow hero__eyebrow">{hero.eyebrow}</p>
+          <h1 id={section.headingId} class="display display--xl hero__title">
+            <HeadlineText headline={hero.headline} />
+          </h1>
+        </div>
+
+        <div class="hero__body">
+          <p class="lede hero__intro">{hero.intro}</p>
+          <div class="hero__actions">
+            {hero.actions.map((action) => <Button {...action} />)}
+          </div>
+          <dl class="hero__facts">
+            {
+              hero.facts.map((fact) => (
+                <div class="hero__fact">
+                  <dt>{fact.label}</dt>
+                  <dd>{fact.value}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </div>
+
+        <div class="hero__media">
+          <Figure
+            role="hero"
+            image={hero.image.src}
+            alt={hero.image.alt}
+            position={hero.image.position}
+            class="hero__image"
+            unavailableLabel={ui.imageUnavailable}
+          />
+          <div class="hero__media-meta">
+            <span class="hero__media-note">{hero.image.caption ?? brand.location}</span>
+            <span class="hero__media-note">{brand.location}</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+</section>

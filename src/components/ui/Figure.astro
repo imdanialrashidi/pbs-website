@@ -1,0 +1,65 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+import { figurePreset, type FigureRole } from "../../lib/images";
+import ImageFallback from "./ImageFallback.astro";
+
+/**
+ * An image with a role. The role owns ratio, widths, sizes, quality and
+ * loading priority; the caller names the content and where it belongs.
+ */
+interface Props {
+  image?: ImageMetadata;
+  role: FigureRole;
+  alt: string;
+  caption?: string;
+  position?: string;
+  class?: string;
+  /** Required: interface copy must come from the page language, never a default. */
+  unavailableLabel: string;
+}
+
+const {
+  image,
+  role,
+  alt,
+  caption,
+  position = "50% 50%",
+  class: className,
+  unavailableLabel,
+} = Astro.props;
+
+const preset = figurePreset(role);
+---
+
+<figure class:list={["media", className]}>
+  {
+    image ? (
+      <div class="media__frame" style={`--media-ratio:${preset.ratio}`}>
+        <Image
+          src={image}
+          alt={alt}
+          widths={[...preset.widths]}
+          sizes={preset.sizes}
+          format="webp"
+          quality={preset.quality}
+          loading={preset.priority ? "eager" : "lazy"}
+          decoding={preset.priority ? "sync" : "async"}
+          fetchpriority={preset.priority ? "high" : "auto"}
+          class="media__img"
+          style={`object-position:${position}`}
+        />
+      </div>
+    ) : (
+      <div
+        class="media__frame"
+        style={`--media-ratio:${preset.ratio}`}
+        role="img"
+        aria-label={`${alt} (${unavailableLabel})`}
+      >
+        <ImageFallback label={unavailableLabel} />
+      </div>
+    )
+  }
+  {caption && <figcaption class="media__caption">{caption}</figcaption>}
+</figure>

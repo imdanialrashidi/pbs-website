@@ -1,0 +1,50 @@
+---
+import type { SiteConfig } from "../../config/types";
+import Icon from "../ui/Icon.astro";
+import Section from "../ui/Section.astro";
+import SectionHeading from "../ui/SectionHeading.astro";
+import { pageLanguage } from "../../lib/language";
+import type { SectionSlot } from "../../lib/sections";
+
+interface Props {
+  site: SiteConfig;
+  section: SectionSlot;
+}
+
+const { site, section } = Astro.props;
+const services = site.services;
+const language = pageLanguage(site);
+---
+
+{
+  services && (
+    <Section id={section.id} labelledby={section.headingId} tone="surface">
+      <SectionHeading
+        eyebrow={services.eyebrow}
+        headline={services.headline}
+        intro={services.intro}
+        id={section.headingId}
+      />
+
+      <div class="services__grid">
+        {services.items.map((service, index) => (
+          <article class="service">
+            <div class="service__top">
+              <span class="service__icon" aria-hidden="true">
+                <Icon name={service.icon} size={17} />
+              </span>
+              <span class="service__index" aria-hidden="true">
+                {language.index(index + 1)}
+              </span>
+            </div>
+            <h3 class="service__title">{service.title}</h3>
+            <p class="service__description">{service.description}</p>
+            {service.meta && <p class="service__meta">{service.meta}</p>}
+          </article>
+        ))}
+      </div>
+
+      {services.note && <p class="section-note">{services.note}</p>}
+    </Section>
+  )
+}

@@ -1,0 +1,77 @@
+---
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Bike,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Coffee,
+  Compass,
+  Expand,
+  Leaf,
+  Mail,
+  MapPin,
+  Menu,
+  Phone,
+  Plus,
+  Sun,
+  Users,
+  WavesHorizontal,
+  Wine,
+  X,
+} from "@lucide/astro";
+import type { IconName } from "../../config/types";
+
+interface Props {
+  name: IconName;
+  size?: number;
+  strokeWidth?: number;
+  class?: string;
+  label?: string;
+}
+
+const { name, size = 18, strokeWidth = 1.5, class: className, label } = Astro.props;
+
+const icons = {
+  "arrow-up-right": ArrowUpRight,
+  "arrow-right": ArrowRight,
+  "chevron-left": ChevronLeft,
+  "chevron-right": ChevronRight,
+  "chevron-down": ChevronDown,
+  phone: Phone,
+  close: X,
+  menu: Menu,
+  mail: Mail,
+  "map-pin": MapPin,
+  clock: Clock,
+  coffee: Coffee,
+  bike: Bike,
+  wine: Wine,
+  sun: Sun,
+  waves: WavesHorizontal,
+  compass: Compass,
+  leaf: Leaf,
+  users: Users,
+  expand: Expand,
+  plus: Plus,
+} as const;
+
+const IconComponent = icons[name];
+const directional = [
+  "arrow-up-right",
+  "arrow-right",
+  "chevron-left",
+  "chevron-right",
+].includes(name);
+---
+
+<IconComponent
+  size={size}
+  stroke-width={strokeWidth}
+  class:list={["icon", directional && "icon--directional", className]}
+  aria-hidden={label ? undefined : "true"}
+  aria-label={label}
+  role={label ? "img" : undefined}
+/>

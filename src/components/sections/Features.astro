@@ -1,0 +1,55 @@
+---
+import type { SiteConfig } from "../../config/types";
+import Icon from "../ui/Icon.astro";
+import Section from "../ui/Section.astro";
+import SectionHeading from "../ui/SectionHeading.astro";
+import { pageLanguage } from "../../lib/language";
+import type { SectionSlot } from "../../lib/sections";
+
+interface Props {
+  site: SiteConfig;
+  section: SectionSlot;
+}
+
+const { site, section } = Astro.props;
+const features = site.features;
+const language = pageLanguage(site);
+---
+
+{
+  features && (
+    <Section id={section.id} labelledby={section.headingId}>
+      <div class="features__layout">
+        <SectionHeading
+          eyebrow={features.eyebrow}
+          headline={features.headline}
+          intro={features.intro}
+          id={section.headingId}
+          layout="aside"
+          sticky
+        />
+
+        <div class="features__list">
+          {features.items.map((feature, index) => (
+            <article class="feature">
+              <span class="feature__icon" aria-hidden="true">
+                {feature.icon ? (
+                  <Icon name={feature.icon} size={19} />
+                ) : (
+                  <span class="feature__index">
+                    {language.index(index + 1)}
+                  </span>
+                )}
+              </span>
+              <div class="feature__body">
+                {feature.meta && <p class="feature__meta">{feature.meta}</p>}
+                <h3 class="feature__title">{feature.title}</h3>
+                <p class="feature__description">{feature.description}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </Section>
+  )
+}

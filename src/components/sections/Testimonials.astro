@@ -1,0 +1,55 @@
+---
+import type { SiteConfig } from "../../config/types";
+import Section from "../ui/Section.astro";
+import SectionHeading from "../ui/SectionHeading.astro";
+import type { SectionSlot } from "../../lib/sections";
+
+interface Props {
+  site: SiteConfig;
+  section: SectionSlot;
+}
+
+const { site, section } = Astro.props;
+const testimonials = site.testimonials;
+const [lead, ...others] = testimonials?.items ?? [];
+---
+
+{
+  testimonials && lead && (
+    <Section id={section.id} labelledby={section.headingId} tone="tint">
+      <SectionHeading
+        eyebrow={testimonials.eyebrow}
+        headline={testimonials.headline}
+        id={section.headingId}
+      />
+
+      <div class="testimonial-grid">
+        <figure class="testimonial testimonial--lead">
+          <blockquote class="testimonial__quote">{lead.quote}</blockquote>
+          <figcaption class="testimonial__meta">
+            <span class="testimonial__name">{lead.name}</span>
+            <span class="testimonial__detail">{lead.detail}</span>
+          </figcaption>
+        </figure>
+
+        {others.length > 0 && (
+          <div class="testimonial-grid__side">
+            {others.map((item) => (
+              <figure class="testimonial">
+                <blockquote class="testimonial__quote">{item.quote}</blockquote>
+                <figcaption class="testimonial__meta">
+                  <span class="testimonial__name">{item.name}</span>
+                  <span class="testimonial__detail">{item.detail}</span>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {testimonials.note && (
+        <p class="section-note">{testimonials.note}</p>
+      )}
+    </Section>
+  )
+}

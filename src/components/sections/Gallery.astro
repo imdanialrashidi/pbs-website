@@ -1,0 +1,149 @@
+---
+import { Image } from "astro:assets";
+import type { SiteConfig } from "../../config/types";
+import Icon from "../ui/Icon.astro";
+import Section from "../ui/Section.astro";
+import SectionHeading from "../ui/SectionHeading.astro";
+import ImageFallback from "../ui/ImageFallback.astro";
+import { figurePreset, fullSize } from "../../lib/images";
+import { pageLanguage } from "../../lib/language";
+import type { SectionSlot } from "../../lib/sections";
+
+interface Props {
+  site: SiteConfig;
+  section: SectionSlot;
+}
+
+const { site, section } = Astro.props;
+const gallery = site.gallery;
+const language = pageLanguage(site);
+const ui = language.t;
+
+const thumb = figurePreset("thumb");
+
+const items = gallery
+  ? await Promise.all(
+      gallery.items.map(async (item) => ({
+        ...item,
+        full: item.image ? await fullSize(item.image) : undefined,
+      })),
+    )
+  : [];
+
+// A photograph is openable exactly when it has a thumbnail and a full-size URL.
+const openable = items.filter((item) => item.image && item.full);
+---
+
+{
+  gallery && (
+    <Section id={section.id} labelledby={section.headingId}>
+      <SectionHeading
+        eyebrow={gallery.eyebrow}
+        headline={gallery.headline}
+        intro={gallery.intro}
+        id={section.headingId}
+      />
+
+      <div class="gallery__columns" data-gallery>
+        {items.map((item) => (
+          <figure class="gallery__item">
+            {item.image && item.full ? (
+              <button
+                class="gallery__button"
+                type="button"
+                aria-label={`${ui.gallery.open} ${item.caption ?? item.alt}`}
+                data-gallery-open
+                data-full={item.full}
+                data-alt={item.alt}
+                data-caption={item.caption ?? ""}
+              >
+                <span class="gallery__image">
+                  <Image
+                    src={item.image}
+                    alt={item.alt}
+                    widths={[...thumb.widths]}
+                    sizes={thumb.sizes}
+                    format="webp"
+                    quality={thumb.quality}
+                    loading="lazy"
+                    decoding="async"
+                    style={`object-position:${item.position ?? "50% 50%"}`}
+                  />
+                </span>
+                <span class="gallery__footer">
+                  <span class="gallery__caption">{item.caption}</span>
+                  <span class="gallery__expand" aria-hidden="true">
+                    <Icon name="expand" size={13} />
+                  </span>
+                </span>
+              </button>
+            ) : (
+              <div
+                class="gallery__image"
+                style={`aspect-ratio:${thumb.ratio}`}
+                role="img"
+                aria-label={`${item.alt} (${ui.imageUnavailable})`}
+              >
+                <ImageFallback label={ui.imageUnavailable} />
+              </div>
+            )}
+          </figure>
+        ))}
+      </div>
+
+      {gallery.note && <p class="section-note">{gallery.note}</p>}
+
+      <dialog
+        class="lightbox"
+        aria-label={ui.gallery.viewer}
+        data-lightbox
+        data-locale={language.lang}
+        data-direction={language.direction}
+      >
+        <div class="lightbox__bar">
+          <span class="lightbox__counter" data-lightbox-counter aria-hidden="true">
+            {language.index(1)} / {language.index(openable.length)}
+          </span>
+          <button
+            class="lightbox__close"
+            type="button"
+            aria-label={ui.gallery.close}
+            data-lightbox-close
+          >
+            <Icon name="close" size={18} />
+          </button>
+        </div>
+        <div class="lightbox__stage">
+          <img class="lightbox__image" alt="" data-lightbox-image hidden />
+        </div>
+        <div class="lightbox__foot">
+          <p class="lightbox__caption" data-lightbox-caption aria-live="polite"></p>
+          <div class="lightbox__navs">
+            <button
+              class="lightbox__nav"
+              type="button"
+              aria-label={ui.gallery.previous}
+              data-lightbox-prev
+            >
+              <Icon name="chevron-left" size={18} />
+            </button>
+            <button
+              class="lightbox__nav"
+              type="button"
+              aria-label={ui.gallery.next}
+              data-lightbox-next
+            >
+              <Icon name="chevron-right" size={18} />
+            </button>
+          </div>
+        </div>
+      </dialog>
+    </Section>
+  )
+}
+
+<script>
+  import { initLightbox } from "../../lib/client/lightbox";
+
+  initLightbox();
+</script>

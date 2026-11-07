@@ -1,0 +1,45 @@
+---
+import type { Headline } from "../../config/types";
+import Eyebrow from "./Eyebrow.astro";
+import HeadlineText from "./Headline.astro";
+
+/**
+ * The one section heading. Rank, measure, spacing and sticky behaviour are
+ * decided here by `layout`, so a caller supplies content and a heading id only.
+ *
+ * - `split`: title column beside the intro; use over a full-width body.
+ * - `aside`: stacked heading used as a column beside a list; can stick.
+ * - `prose`: stacked heading inside a reading column, without section spacing.
+ */
+type Layout = "split" | "aside" | "prose";
+
+interface Props {
+  eyebrow: string;
+  headline: Headline;
+  intro?: string;
+  id: string;
+  layout?: Layout;
+  sticky?: boolean;
+}
+
+const { eyebrow, headline, intro, id, layout = "split", sticky = false } = Astro.props;
+
+const rank = layout === "aside" ? "display--lg" : "display--md";
+---
+
+<header
+  class:list={[
+    "section-heading",
+    `section-heading--${layout}`,
+    sticky && "section-heading--sticky",
+  ]}
+>
+  <div class="section-heading__main">
+    <Eyebrow text={eyebrow} />
+    <h2 id={id} class:list={["display", rank, "section-heading__title"]}>
+      <HeadlineText headline={headline} />
+    </h2>
+  </div>
+
+  {intro && <p class="lede section-heading__intro">{intro}</p>}
+</header>

@@ -1,0 +1,21 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# local environment overrides
+.env
+.env.*
+!.env.example
+
+# macOS / editor noise
+.DS_Store
+*.swp
+.vscode/
+
+# Playwright / local verification output
+test-results/
+playwright-report/
+.lighthouse/

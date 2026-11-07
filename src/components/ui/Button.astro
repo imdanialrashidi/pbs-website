@@ -1,0 +1,47 @@
+---
+import type { Action, IconName } from "../../config/types";
+import Icon from "./Icon.astro";
+
+/**
+ * A link when it has somewhere to go, a submit/button otherwise. Config
+ * actions (`Action`) carry an href; a form CTA passes `type="submit"`.
+ */
+interface Props {
+  label: string;
+  href?: string;
+  variant?: Action["variant"];
+  icon?: IconName | "none";
+  class?: string;
+  type?: "button" | "submit";
+}
+
+const {
+  label,
+  href,
+  variant = "solid",
+  icon = "arrow-up-right",
+  class: className,
+  type = "button",
+} = Astro.props;
+
+const classes = ["btn", `btn--${variant}`, className];
+---
+
+{
+  href ? (
+    <a
+      href={href}
+      class:list={classes}
+      target={href.startsWith("http") ? "_blank" : undefined}
+      rel={href.startsWith("http") ? "noreferrer" : undefined}
+    >
+      <span>{label}</span>
+      {icon !== "none" && <Icon name={icon} size={15} class="btn__icon" />}
+    </a>
+  ) : (
+    <button type={type} class:list={classes}>
+      <span>{label}</span>
+      {icon !== "none" && <Icon name={icon} size={15} class="btn__icon" />}
+    </button>
+  )
+}

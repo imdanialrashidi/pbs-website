@@ -1,0 +1,17 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../config/site";
+import { sectionComponents } from "../components/sections";
+import { pageFor } from "../lib/sections";
+
+const page = pageFor(site);
+---
+
+<BaseLayout>
+  {
+    page.sections.map((section) => {
+      const SectionComponent = sectionComponents[section.id];
+      return <SectionComponent site={site} section={section} />;
+    })
+  }
+</BaseLayout>

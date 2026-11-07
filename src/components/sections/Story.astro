@@ -1,0 +1,78 @@
+---
+import type { SiteConfig } from "../../config/types";
+import Button from "../ui/Button.astro";
+import Figure from "../ui/Figure.astro";
+import { pageLanguage } from "../../lib/language";
+import Section from "../ui/Section.astro";
+import SectionHeading from "../ui/SectionHeading.astro";
+import type { SectionSlot } from "../../lib/sections";
+
+interface Props {
+  site: SiteConfig;
+  section: SectionSlot;
+}
+
+const { site, section } = Astro.props;
+const story = site.story;
+const ui = pageLanguage(site).t;
+---
+
+{
+  story && (
+    <Section id={section.id} labelledby={section.headingId}>
+      <div class="story__grid">
+        <div class="story__media reveal">
+          <Figure
+            role="figure"
+            image={story.image.src}
+            alt={story.image.alt}
+            caption={story.image.caption}
+            position={story.image.position}
+            unavailableLabel={ui.imageUnavailable}
+          />
+        </div>
+
+        <div class="story__content">
+          <SectionHeading
+            eyebrow={story.eyebrow}
+            headline={story.headline}
+            id={section.headingId}
+            layout="prose"
+          />
+
+          <div class="story__prose">
+            {story.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+          </div>
+
+          <dl class="story__facts">
+            {
+              story.facts.map((fact) => (
+                <div class="story__fact">
+                  <dt>{fact.label}</dt>
+                  <dd>{fact.value}</dd>
+                </div>
+              ))
+            }
+          </dl>
+
+          {(story.signature || story.signatureNote) && (
+            <div class="story__signature">
+              {story.signature && (
+                <p class="story__signature-name">{story.signature}</p>
+              )}
+              {story.signatureNote && (
+                <p class="story__signature-note">{story.signatureNote}</p>
+              )}
+            </div>
+          )}
+
+          {story.action && (
+            <div class="story__action">
+              <Button {...story.action} icon="arrow-right" />
+            </div>
+          )}
+        </div>
+      </div>
+    </Section>
+  )
+}

@@ -1,0 +1,132 @@
+---
+import type { SiteConfig } from "../../config/types";
+import Button from "../ui/Button.astro";
+import Icon from "../ui/Icon.astro";
+import Logo from "../ui/Logo.astro";
+import { pageLanguage } from "../../lib/language";
+import { hasSection, pageFor } from "../../lib/sections";
+import { href } from "../../lib/url";
+
+interface Props {
+  site: SiteConfig;
+}
+
+const { site } = Astro.props;
+const language = pageLanguage(site);
+const ui = language.t;
+const page = pageFor(site);
+
+const headerAction = site.headerAction
+  ? { ...site.headerAction, href: href(site.headerAction.href) }
+  : undefined;
+const contact = hasSection(page, "contact") ? site.contact : undefined;
+---
+
+<a class="skip-link" href={href("#main")}>{ui.skipToContent}</a>
+
+<header class="site-header">
+  <div class="shell header-inner">
+    <Logo brand={site.brand} />
+
+    <nav class="desktop-nav" aria-label={ui.primaryNavigation}>
+      {
+        page.navigation.map((item) => (
+          <a class="nav-link" href={href(item.anchor)}>
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="header-actions">
+      {
+        headerAction && (
+          <Button
+            {...headerAction}
+            icon="arrow-up-right"
+            class="header-cta"
+          />
+        )
+      }
+      <button
+        class="menu-button"
+        type="button"
+        aria-label={ui.openMenu}
+        aria-haspopup="dialog"
+        aria-controls="site-menu"
+        aria-expanded="false"
+        data-menu-toggle
+      >
+        <Icon name="menu" size={20} />
+      </button>
+    </div>
+  </div>
+</header>
+
+<noscript>
+  <nav class="noscript-nav" aria-label={ui.primaryNavigation}>
+    <div class="shell noscript-nav__inner">
+      {page.navigation.map((item) => <a class="nav-link" href={href(item.anchor)}>{item.label}</a>)}
+      {headerAction && (
+        <a
+          class:list={["btn", `btn--${headerAction.variant ?? "accent"}`]}
+          href={headerAction.href}
+        >
+          {headerAction.label}
+        </a>
+      )}
+    </div>
+  </nav>
+</noscript>
+
+<dialog
+  class="menu-dialog"
+  id="site-menu"
+  aria-label={ui.siteMenu}
+  data-menu
+>
+  <div class="menu-shell">
+    <div class="menu-header">
+      <Logo brand={site.brand} showDescriptor={false} />
+      <button
+        class="menu-close"
+        type="button"
+        aria-label={ui.closeMenu}
+        autofocus
+        data-menu-close
+      >
+        <Icon name="close" size={20} />
+      </button>
+    </div>
+
+    <nav class="menu-links" aria-label={ui.mobileNavigation}>
+      {
+        page.navigation.map((item, index) => (
+          <a class="menu-link" href={href(item.anchor)}>
+            <span class="menu-link__index" aria-hidden="true">
+              {language.index(index + 1)}
+            </span>
+            <span>{item.label}</span>
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="menu-footer">
+      {headerAction && (
+        <Button {...headerAction} icon="arrow-up-right" class="w-full" />
+      )}
+      {contact && (
+        <a href={`mailto:${contact.details.email}`}>
+          <bdi dir="ltr">{contact.details.email}</bdi>
+        </a>
+      )}
+    </div>
+  </div>
+</dialog>
+
+<script>
+  import { initMenu } from "../../lib/client/menu";
+
+  initMenu();
+</script>

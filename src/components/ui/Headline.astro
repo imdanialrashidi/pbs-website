@@ -1,0 +1,11 @@
+---
+import type { Headline as HeadlineContent } from "../../config/types";
+
+interface Props {
+  headline: HeadlineContent;
+}
+
+const { headline } = Astro.props;
+---
+
+{headline.lead}{headline.accent && <em>{headline.accent}</em>}{headline.tail}
