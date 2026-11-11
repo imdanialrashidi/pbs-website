@@ -1,78 +1,115 @@
 ---
-import type { SiteConfig } from "../../config/types";
+import type { PageKey, SiteConfig } from "../../config/types";
 import { pageLanguage } from "../../lib/language";
-import { hasSection, pageFor } from "../../lib/sections";
-import { base, href } from "../../lib/url";
+import { navigationFor } from "../../lib/navigation";
+import { localePageHref } from "../../lib/routes";
+import { localeHref, localeHome } from "../../lib/url";
+import LanguageSwitch from "./LanguageSwitch.astro";
 import Logo from "../ui/Logo.astro";
 
 interface Props {
   site: SiteConfig;
+  pageKey?: PageKey;
 }
 
-const { site } = Astro.props;
+const { site, pageKey = "home" } = Astro.props;
 const language = pageLanguage(site);
 const ui = language.t;
-const page = pageFor(site);
 const year = language.year();
-const contact = hasSection(page, "contact") ? site.contact : undefined;
+const contactLinks = site.contactLinks ?? {};
+const channels = site.contact?.channels ?? [];
+const availableChannels = channels.filter((channel) => contactLinks[channel.id]?.href);
 
-const footerLinks = [
-  ...page.navigation,
-  ...(contact ? [{ label: ui.contact, anchor: "#contact" as const }] : []),
-].filter((item, index, items) => items.findIndex((candidate) => candidate.anchor === item.anchor) === index);
+const backToTopHref = pageKey === "work" ? "#main" : localeHref(site, "#hero");
+const contactHref = localeHref(site, "#contact");
+
+const exploreLinks = [
+  ...navigationFor(site, pageKey),
+  {
+    label: ui.work,
+    href: localePageHref(site, "work"),
+    current: pageKey === "work",
+  },
+  ...(site.contact ? [{ label: ui.contact, href: contactHref, current: false }] : []),
+].filter(
+  (item, index, items) => items.findIndex((candidate) => candidate.href === item.href) === index,
+);
 ---
 
 <footer class="site-footer">
   <div class="shell">
     <div class="footer__top">
       <div class="footer__brand">
-        <Logo brand={site.brand} href={base} />
+        <Logo
+          brand={site.brand}
+          href={localeHome(site)}
+          showDescriptor={false}
+          variant="on-dark"
+        />
         <p class="footer__tagline">{site.footer.tagline}</p>
+        {site.footer.disclosure && <p class="footer__disclosure">{site.footer.disclosure}</p>}
       </div>
 
-      <nav class="footer__nav" aria-label={ui.footerNavigation}>
-        <div>
-          <p class="footer__heading">{ui.explore}</p>
-          <div class="footer__links">
-            {footerLinks.map((item) => <a href={href(item.anchor)}>{item.label}</a>)}
-          </div>
-        </div>
-        <div>
-          <p class="footer__heading">{ui.elsewhere}</p>
-          <div class="footer__links">
-            <a href={href("#hero")}>{ui.backToTop}</a>
-            <a href={site.footer.photoCredit.href} target="_blank" rel="noreferrer">
-              {site.footer.photoCredit.label}
-            </a>
-          </div>
+      <nav class="footer__explore" aria-label={ui.footerNavigation}>
+        <p class="footer__heading">{ui.explore}</p>
+        <div class="footer__links">
+          {
+            exploreLinks.map((item) => (
+              <a href={item.href} aria-current={item.current ? "page" : undefined}>
+                {item.label}
+              </a>
+            ))
+          }
         </div>
       </nav>
 
-      {contact && (
-        <div class="footer__contact">
-          <p class="footer__heading">{ui.findUs}</p>
-          <a href={`mailto:${contact.details.email}`}>
-            <bdi dir="ltr">{contact.details.email}</bdi>
-          </a>
-          <address>{contact.details.address}</address>
-          <p>{contact.details.hours}</p>
-        </div>
-      )}
+      {
+        site.contact && (
+          <div class="footer__contact">
+            <p class="footer__heading">{ui.contact}</p>
+            {availableChannels.length > 0 ? (
+              <div class="footer__channels">
+                {channels.map((channel) => {
+                  const resolved = contactLinks[channel.id];
+                  return resolved?.href ? (
+                    <a
+                      class="footer__channel"
+                      href={resolved.href}
+                      target={resolved.external ? "_blank" : undefined}
+                      rel={resolved.external ? "noopener noreferrer" : undefined}
+                    >
+                      <span>{channel.label}</span>
+                      {resolved.display && (
+                        <bdi class="footer__channel-value" dir="ltr">
+                          {resolved.display}
+                        </bdi>
+                      )}
+                      {resolved.external && <span class="sr-only">{ui.opensInNewTab}</span>}
+                    </a>
+                  ) : null;
+                })}
+              </div>
+            ) : (
+              <div class="footer__pending">
+                <a class="footer__contact-link" href={contactHref}>
+                  {ui.openChannel}
+                </a>
+                <p class="footer__status">{ui.contactPending}</p>
+              </div>
+            )}
+          </div>
+        )
+      }
     </div>
 
-    <p class="footer__wordmark" aria-hidden="true">{site.brand.name}</p>
-
     <div class="footer__bottom">
-      <div>
-        {
-          site.demo.enabled && (
-            <p class="footer__demo-note">{site.demo.note}</p>
-          )
-        }
-        <p class="footer__meta">
-          <span>© {year} {site.brand.name}</span>
-          <span>{ui.staticNoTracking}</span>
-        </p>
+      <p class="footer__meta">
+        <span>© {year} {site.brand.name}</span>
+        <span>{ui.staticNoTracking}</span>
+      </p>
+      <div class="footer__bottom-actions">
+        <a class="footer__top-link" href={backToTopHref}>{ui.backToTop}</a>
+        <LanguageSwitch site={site} pageKey={pageKey} class="footer__lang" />
       </div>
     </div>
   </div>

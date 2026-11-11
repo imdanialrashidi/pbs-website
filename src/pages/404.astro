@@ -12,7 +12,8 @@ const backLabel = ui.notFound.back;
 ---
 
 <BaseLayout
-  title={`${ui.notFound.title} — ${site.brand.name}`}
+  site={site}
+  title={`${ui.notFound.title} | ${site.brand.name}`}
   description={ui.notFound.body}
   noindex
 >
@@ -26,10 +27,10 @@ const backLabel = ui.notFound.back;
         <h1 id="not-found-title" class="display display--md">
           {ui.notFound.title}
         </h1>
-        <p class="lede mt-4">{ui.notFound.body}</p>
+        <p class="lede not-found__lede">{ui.notFound.body}</p>
       </div>
       <div>
-        <Button href={base} label={backLabel} variant="accent" />
+        <Button href={base} label={backLabel} variant="primary" />
       </div>
     </div>
   </section>

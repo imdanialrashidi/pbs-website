@@ -1,0 +1,18 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { pbsSites } from "../../config/site";
+import { sectionComponents } from "../../components/sections";
+import { pageFor } from "../../lib/sections";
+
+const site = pbsSites.en;
+const page = pageFor(site);
+---
+
+<BaseLayout site={site}>
+  {
+    page.sections.map((section) => {
+      const SectionComponent = sectionComponents[section.id];
+      return <SectionComponent site={site} section={section} />;
+    })
+  }
+</BaseLayout>

@@ -1,6 +1,5 @@
 ---
 import type { SiteConfig } from "../../config/types";
-import Icon from "../ui/Icon.astro";
 import Section from "../ui/Section.astro";
 import SectionHeading from "../ui/SectionHeading.astro";
 import { pageLanguage } from "../../lib/language";
@@ -18,38 +17,156 @@ const language = pageLanguage(site);
 
 {
   features && (
-    <Section id={section.id} labelledby={section.headingId}>
-      <div class="features__layout">
-        <SectionHeading
-          eyebrow={features.eyebrow}
-          headline={features.headline}
-          intro={features.intro}
-          id={section.headingId}
-          layout="aside"
-          sticky
-        />
+    <Section id={section.id} labelledby={section.headingId} class="process-section">
+      <SectionHeading
+        eyebrow={features.eyebrow}
+        headline={features.headline}
+        intro={features.intro}
+        id={section.headingId}
+      />
 
-        <div class="features__list">
-          {features.items.map((feature, index) => (
-            <article class="feature">
-              <span class="feature__icon" aria-hidden="true">
-                {feature.icon ? (
-                  <Icon name={feature.icon} size={19} />
-                ) : (
-                  <span class="feature__index">
-                    {language.index(index + 1)}
-                  </span>
-                )}
-              </span>
-              <div class="feature__body">
-                {feature.meta && <p class="feature__meta">{feature.meta}</p>}
-                <h3 class="feature__title">{feature.title}</h3>
-                <p class="feature__description">{feature.description}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </div>
+      <ol class="process">
+        {features.items.map((feature, index) => (
+          <li class="process__step">
+            <span class="process__node" aria-hidden="true">
+              {feature.meta ?? language.index(index + 1)}
+            </span>
+            <div class="process__copy">
+              <h3 class="process__title">{feature.title}</h3>
+              <p class="process__description">{feature.description}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
     </Section>
   )
 }
+
+<style>
+  .process {
+    position: relative;
+    display: grid;
+    margin-top: clamp(1.75rem, 3vw, 2.5rem);
+  }
+
+  .process__step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: 0.9rem;
+    padding-block: 0 1.3rem;
+  }
+
+  .process__step:first-child {
+    padding-top: 0.25rem;
+  }
+
+  .process__step::before {
+    position: absolute;
+    inset-block: 2.7rem 0;
+    inset-inline-start: 1.23rem;
+    width: 1px;
+    background: var(--c-line);
+    content: "";
+  }
+
+  .process__step:last-child::before {
+    display: none;
+  }
+
+  .process__node {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    width: 2.5rem;
+    height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid color-mix(in srgb, var(--c-action) 22%, var(--c-line));
+    border-radius: 7px;
+    background: var(--c-canvas);
+    color: var(--c-action);
+    font-family: var(--type-body);
+    font-size: 0.64rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .process__copy {
+    min-width: 0;
+    padding-top: 0.35rem;
+  }
+
+  .process__title {
+    font-family: var(--type-display);
+    font-size: clamp(1.12rem, 1.5vw, 1.3rem);
+    font-weight: 650;
+    letter-spacing: -0.015em;
+    line-height: 1.4;
+  }
+
+  .process__description {
+    max-width: 47ch;
+    margin-top: 0.3rem;
+    color: var(--c-muted);
+    font-size: 0.91rem;
+    line-height: 1.8;
+  }
+
+  :lang(fa) .process__node {
+    font-size: 0.7rem;
+  }
+
+  :lang(fa) .process__title {
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.6;
+  }
+
+  :lang(fa) .process__description {
+    font-size: 0.95rem;
+    line-height: 1.95;
+  }
+
+  @media (min-width: 900px) {
+    .process {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: clamp(1.25rem, 2.5vw, 2.25rem);
+      margin-top: clamp(2rem, 3.5vw, 3rem);
+    }
+
+    .process::before {
+      position: absolute;
+      inset-block-start: 1.2rem;
+      inset-inline: 0;
+      height: 1px;
+      background: var(--c-line);
+      content: "";
+    }
+
+    .process__step {
+      display: block;
+      padding: 0;
+    }
+
+    .process__step::before {
+      display: none;
+    }
+
+    .process__node {
+      margin-bottom: 0.9rem;
+      background: var(--c-canvas);
+    }
+
+    .process__copy {
+      border-top: 1px solid var(--c-line);
+      padding-top: 0.8rem;
+    }
+
+    .process__description {
+      font-size: 0.88rem;
+      line-height: 1.75;
+    }
+  }
+</style>

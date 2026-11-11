@@ -1,9 +1,11 @@
 ---
 import type { SiteConfig } from "../../config/types";
+import Button from "../ui/Button.astro";
 import Icon from "../ui/Icon.astro";
 import Section from "../ui/Section.astro";
 import SectionHeading from "../ui/SectionHeading.astro";
 import type { SectionSlot } from "../../lib/sections";
+import { localeHref } from "../../lib/url";
 
 interface Props {
   site: SiteConfig;
@@ -12,11 +14,14 @@ interface Props {
 
 const { site, section } = Astro.props;
 const faq = site.faq;
+const action = faq?.action
+  ? { ...faq.action, href: localeHref(site, faq.action.href) }
+  : undefined;
 ---
 
 {
   faq && (
-    <Section id={section.id} labelledby={section.headingId}>
+    <Section id={section.id} labelledby={section.headingId} class="faq">
       <div class="faq__layout">
         <SectionHeading
           eyebrow={faq.eyebrow}
@@ -27,22 +32,126 @@ const faq = site.faq;
           sticky
         />
 
-        <div class="faq__list">
-          {faq.items.map((item, index) => (
-            <details class="faq__item" open={index === 0}>
-              <summary class="faq__summary">
-                <span class="faq__question">{item.question}</span>
-                <span class="faq__icon" aria-hidden="true">
-                  <Icon name="plus" size={17} />
-                </span>
-              </summary>
-              <div class="faq__answer">
-                <p>{item.answer}</p>
-              </div>
-            </details>
-          ))}
+        <div class="faq__body">
+          <div class="faq__list">
+            {faq.items.map((item, index) => (
+              <details class="faq__item" open={index === 0}>
+                <summary class="faq__summary">
+                  <h3 class="faq__question">{item.question}</h3>
+                  <span class="faq__icon" aria-hidden="true">
+                    <Icon name="plus" size={15} />
+                  </span>
+                </summary>
+                <div class="faq__answer">
+                  <p>{item.answer}</p>
+                </div>
+              </details>
+            ))}
+          </div>
+
+          {action && (
+            <div class="faq__action">
+              <Button {...action} />
+            </div>
+          )}
         </div>
       </div>
     </Section>
   )
 }
+
+<style>
+  .faq__layout {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .faq__list {
+    border-top: 1px solid var(--c-line);
+  }
+
+  .faq__item {
+    border-bottom: 1px solid var(--c-line);
+  }
+
+  .faq__summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 1.6rem;
+    gap: 1rem;
+    align-items: start;
+    padding-block: 1.1rem;
+    list-style: none;
+  }
+
+  .faq__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq__summary:hover .faq__question {
+    color: var(--c-action);
+  }
+
+  .faq__question {
+    font-family: var(--type-display);
+    font-size: clamp(1.02rem, 1.35vw, 1.22rem);
+    font-weight: 600;
+    letter-spacing: -0.012em;
+    line-height: 1.45;
+    transition: color 160ms ease;
+    text-wrap: balance;
+  }
+
+  .faq__icon {
+    display: inline-flex;
+    width: 1.6rem;
+    height: 1.6rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid color-mix(in srgb, var(--c-action) 22%, var(--c-line));
+    border-radius: 5px;
+    color: var(--c-action);
+    transition:
+      transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 160ms ease,
+      border-color 160ms ease,
+      color 160ms ease;
+  }
+
+  .faq__item[open] .faq__icon {
+    border-color: var(--c-accent);
+    background: var(--c-accent);
+    color: var(--c-accent-ink);
+    transform: rotate(45deg);
+  }
+
+  .faq__answer {
+    max-width: 62ch;
+    padding-block: 0 1.3rem;
+    padding-inline-end: 2.4rem;
+    color: var(--c-muted);
+    font-size: 0.94rem;
+    line-height: 1.85;
+  }
+
+  .faq__action {
+    margin-top: 1.25rem;
+  }
+
+  :lang(fa) .faq__question {
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.65;
+  }
+
+  :lang(fa) .faq__answer {
+    font-size: 0.96rem;
+    line-height: 1.95;
+  }
+
+  @media (min-width: 900px) {
+    .faq__layout {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      column-gap: clamp(2rem, 6vw, 6rem);
+    }
+  }
+</style>

@@ -2,9 +2,9 @@
 import type { SiteConfig } from "../../config/types";
 import Button from "../ui/Button.astro";
 import HeadlineText from "../ui/Headline.astro";
-import Figure from "../ui/Figure.astro";
-import { pageLanguage } from "../../lib/language";
 import type { SectionSlot } from "../../lib/sections";
+import { localeHref } from "../../lib/url";
+import SystemMap from "./SystemMap.astro";
 
 interface Props {
   site: SiteConfig;
@@ -12,91 +12,112 @@ interface Props {
 }
 
 const { site, section } = Astro.props;
-const { hero, brand } = site;
-const ui = pageLanguage(site).t;
-const isImmersive = hero.variant === "immersive";
+const { hero } = site;
+const actions = hero.actions.map((action) => ({
+  ...action,
+  href: localeHref(site, action.href),
+}));
 ---
 
-<section
-  id={section.id}
-  class:list={["hero", isImmersive ? "hero--immersive" : "hero--split"]}
-  aria-labelledby={section.headingId}
->
-  {
-    isImmersive ? (
-      <>
-        <div class="hero__media">
-          <Figure
-            role="banner"
-            image={hero.image.src}
-            alt={hero.image.alt}
-            position={hero.image.position}
-            class="hero__image"
-            unavailableLabel={ui.imageUnavailable}
-          />
-        </div>
-        <div class="shell hero__immersive-inner">
-          <p class="eyebrow hero__eyebrow">{hero.eyebrow}</p>
-          <h1 id={section.headingId} class="display display--xl hero__title">
-            <HeadlineText headline={hero.headline} />
-          </h1>
-          <p class="hero__intro">{hero.intro}</p>
-          <div class="hero__actions">
-            {hero.actions.map((action) => <Button {...action} />)}
-          </div>
-          <dl class="hero__facts">
-            {
-              hero.facts.map((fact) => (
-                <div class="hero__fact">
-                  <dt>{fact.label}</dt>
-                  <dd>{fact.value}</dd>
-                </div>
-              ))
-            }
-          </dl>
-        </div>
-      </>
-    ) : (
-      <div class="shell hero__grid">
-        <div class="hero__headline">
-          <p class="eyebrow hero__eyebrow">{hero.eyebrow}</p>
-          <h1 id={section.headingId} class="display display--xl hero__title">
-            <HeadlineText headline={hero.headline} />
-          </h1>
-        </div>
+<section id={section.id} class="hero" aria-labelledby={section.headingId}>
+  <div class="shell hero__grid">
+    <div class="hero__copy">
+      <p class="eyebrow hero__eyebrow">{hero.eyebrow}</p>
 
-        <div class="hero__body">
-          <p class="lede hero__intro">{hero.intro}</p>
-          <div class="hero__actions">
-            {hero.actions.map((action) => <Button {...action} />)}
-          </div>
-          <dl class="hero__facts">
-            {
-              hero.facts.map((fact) => (
-                <div class="hero__fact">
-                  <dt>{fact.label}</dt>
-                  <dd>{fact.value}</dd>
-                </div>
-              ))
-            }
-          </dl>
-        </div>
+      <h1 id={section.headingId} class="display display--xl hero__title">
+        <HeadlineText headline={hero.headline} />
+      </h1>
 
-        <div class="hero__media">
-          <Figure
-            role="hero"
-            image={hero.image.src}
-            alt={hero.image.alt}
-            position={hero.image.position}
-            class="hero__image"
-            unavailableLabel={ui.imageUnavailable}
-          />
-          <div class="hero__media-meta">
-            <span class="hero__media-note">{hero.image.caption ?? brand.location}</span>
-            <span class="hero__media-note">{brand.location}</span>
-          </div>
-        </div>
+      <p class="hero__intro">{hero.intro}</p>
+
+      <div class="hero__actions">
+        {actions.map((action) => <Button {...action} />)}
       </div>
-    )
-  }
+    </div>
+
+    <div class="hero__visual">
+      <SystemMap site={site} map={hero.scopeMap} />
+    </div>
+  </div>
 </section>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: clip;
+    border-bottom: 1px solid var(--c-line);
+    padding-block: clamp(1.5rem, 4vw, 3.25rem) clamp(2.5rem, 6vw, 5rem);
+    background: var(--c-canvas);
+  }
+
+  .hero__grid {
+    display: grid;
+    gap: clamp(1.75rem, 5vw, 4rem);
+    align-items: center;
+  }
+
+  .hero__copy {
+    min-width: 0;
+  }
+
+  .hero__eyebrow {
+    margin-bottom: clamp(0.9rem, 2vw, 1.25rem);
+  }
+
+  .hero__title {
+    max-width: 18ch;
+  }
+
+  :lang(fa) .hero__title {
+    max-width: 19ch;
+  }
+
+  .hero__intro {
+    max-width: 49ch;
+    margin-top: 1.2rem;
+    color: var(--c-muted);
+    font-size: clamp(1rem, 0.95rem + 0.3vw, 1.14rem);
+    line-height: 1.85;
+  }
+
+  :lang(fa) .hero__intro {
+    max-width: 52ch;
+    line-height: 1.95;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.5rem;
+  }
+
+  .hero__visual {
+    width: 100%;
+    max-width: 30rem;
+    min-width: 0;
+    justify-self: center;
+  }
+
+  @media (min-width: 960px) {
+    .hero__grid {
+      grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+      gap: clamp(2rem, 5vw, 5rem);
+    }
+
+    .hero__copy {
+      padding-block: 0.75rem;
+    }
+
+    .hero__visual {
+      max-width: none;
+      justify-self: end;
+    }
+  }
+
+  @media (max-width: 959px) {
+    .hero__visual {
+      margin-top: 0.35rem;
+    }
+  }
+</style>

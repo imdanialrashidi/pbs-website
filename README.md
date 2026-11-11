@@ -1,416 +1,375 @@
-# Client Demo Factory
+# PBS | Practical Business Solutions
 
-A small, static-first, Persian-first starter for producing premium, mobile-first
-client website demos quickly. One Astro application, one typed client
-configuration, and a library of reusable editorial sections. Change the config,
-imagery, and design tokens; keep the components.
+The public website for **PBS**, an independent, early-stage B2B digital
+solutions team. Persian is the reference locale at the deployment root; English
+is a real LTR page at `/en/`. The portfolio is a second route pair at `/work/`
+and `/en/work/`. All pages are prerendered in the same static Astro build.
 
-Persian is the default language and the reference implementation: RTL layout,
-Persian typography, Persian numerals, localised interface strings, and a
-self-hosted Persian font pairing. The same components still render a clean LTR
-English site from the other two configs.
-
-The repository ships with three complete fictional examples:
-
-- **Naranj House** — the default Persian, RTL coastal guesthouse demo.
-- **Casa Marea** — a warm, serif-led English coastal guesthouse demo.
-- **Atelier Sora** — a dark, grotesque-led English interior studio demo.
-
-All three use the same components and differ through their client configuration.
+The site is deliberately static: no backend, CMS, database, analytics, remote
+font service, third-party script or fake inquiry submission. Contact actions
+open a verified external channel when one is configured, and show an honest
+"details coming soon" state when it is not. The website is light-only: there is
+no theme toggle, localStorage theme, dark stylesheet or automatic OS-dark
+variant. The closing contact/footer and one small statement panel are deliberate
+navy surfaces.
 
 ## Stack
 
 - Astro `7.4.4`, static output
 - TypeScript `5.9.3` with Astro's strict config
-- Tailwind CSS `4.3.3` through the Vite plugin
-- Lucide icons via `@lucide/astro`
-- Astro's built-in image optimization (`sharp`)
-- Persian-first RTL with locale-aware UI strings, numerals, and typography
-- Native CSS transitions, scroll-driven enhancement, and `prefers-reduced-motion`
-- Native `<dialog>` and `<details>` for interaction; no UI framework or hydration
+- Lucide icons via `@lucide/astro`, inlined at build time
+- Self-hosted Vazirmatn (Persian) and Inter (English) variable WOFF2 fonts
+- Native `<dialog>` for the mobile menu, native `<details>` for FAQ items
 - GitHub Actions deployment to GitHub Pages
 
-No CMS, backend, analytics, external font service, or runtime image dependency is
-included.
+No UI framework, CSS framework, hydration island, image CDN or runtime remote
+asset is used.
 
-## Requirements
+## Routes
+
+| Route | Locale | Direction | Source |
+| --- | --- | --- | --- |
+| `/` | `fa-IR` | RTL | `src/config/pbs/fa.ts` |
+| `/en/` | `en` | LTR | `src/config/pbs/en.ts` |
+| `/work/` | `fa-IR` | RTL | `src/config/pbs/work.ts` |
+| `/en/work/` | `en` | LTR | `src/config/pbs/work.ts` |
+| `/404.html` | `fa-IR` | RTL | `src/pages/404.astro` |
+| `/sitemap.xml` | | | `src/pages/sitemap.xml.ts` |
+| `/robots.txt` | | | `src/pages/robots.txt.ts` |
+
+> **Owner action before a public launch:** the four public contact identifiers are
+> intentionally empty because PBS has not supplied verified values. All four
+> channels currently show a truthful non-clickable "details coming soon" state.
+> Fill [`src/config/pbs/contact.ts`](src/config/pbs/contact.ts), rebuild, and
+> verify the links as described below. Do not substitute guessed handles or
+> numbers.
+
+## Requirements and commands
 
 - Node.js `>=22.23.4` (the deploy workflow uses Node 24)
 - npm `12.2.1` (declared in `packageManager`; the lockfile is committed)
 
 ```sh
 npm ci
-npm run dev
-```
-
-Open <http://localhost:4321>. The default client is Naranj House (Persian, RTL).
-For the English reference site:
-
-```sh
-CLIENT=casa-marea npm run dev
-```
-
-## Commands
-
-```sh
-npm run dev          # local development server
+npm run dev          # local development
 npm run check        # Astro + TypeScript diagnostics
-npm run build        # production build in dist/
+npm run build        # production static build in dist/
 npm run preview      # serve the production build
-npm run verify       # check, then build
-npm run build:alt    # build the alternate English example (Atelier Sora)
+npm run verify       # npm run check && npm run build
 ```
 
-Switch the active client for any Astro command with `CLIENT`:
+Verify the GitHub Pages project path before claiming deployment compatibility:
 
 ```sh
-CLIENT=naranj-house npm run dev   # Persian, RTL (the default)
-CLIENT=casa-marea npm run dev     # English, LTR
-CLIENT=atelier-sora npm run build # English, LTR
+SITE_URL=https://imdanialrashidi.github.io BASE_PATH=/pbs-website/ npm run build
+BASE_PATH=/pbs-website/ npm run preview
 ```
 
-This is POSIX shell syntax. On Windows, set the environment variable in the
-shell session or use a small wrapper script. The active client is selected at
-build time; only that client is rendered.
+Open the URL printed by Astro including `/pbs-website/`. The preview command
+must receive the same `BASE_PATH` as the build.
 
 ## Project map
 
 ```text
 src/
   config/
-    types.ts                 typed contract for every client
-    site.ts                  active client switch and registry
-    clients/
-      naranj-house.ts        default Persian RTL hospitality example
-      casa-marea.ts          English hospitality example
-      atelier-sora.ts        English studio example
+    pbs/
+      fa.ts              Persian homepage copy, metadata and navigation
+      en.ts              English homepage copy, metadata and navigation
+      work.ts            portfolio copy for both locales
+      shared.ts          palette, shape, locale links, resolved contacts
+      contact.ts         THE editable public contact identifiers
+    site.ts              PBS locale and work-page registries
+    types.ts             typed content and configuration contract
   lib/
-    sections.ts              page composition: section slots, anchors, navigation
-    language.ts              interface dictionaries, direction, page language
-    format.ts                locale-aware number and date formatting
-    images.ts                figure roles, full-size and social image derivation
-    fonts.ts                 self-hosted font faces and font stacks
-    theme.ts                 themeFor(theme) -> CSS + font preloads
-    url.ts                   deployment-base-aware href helpers
-    client/                  menu, lightbox and demo-form modules
-  styles/global.css          design system, layout, interactions, motion
+    contact.ts           validated contact-link resolution
+    format.ts            locale-aware number and year formatting
+    language.ts          interface copy, direction, Open Graph locale
+    navigation.ts        resolves authored navigation for the current page
+    routes.ts            public page paths and locale alternates
+    schema.ts            JSON-LD generated from visible page content
+    sections.ts          page composition, anchors, dead-link checks
+    theme.ts             theme tokens and font preload list
+    fonts.ts             self-hosted font faces
+    url.ts               base-aware href helpers
+    client/menu.ts       mobile menu behaviour
+    client/section-nav.ts current-section highlight
   components/
-    ui/                      Button, Figure, ImageFallback, Section, SectionHeading, Logo, Icon
-    layout/                  Header (mobile <dialog>) and Footer
-    sections/                reusable page sections + registry
-  layouts/BaseLayout.astro   head, metadata, social image, page shell
-  pages/index.astro          composes sections from the active client config
-  pages/404.astro            branded static not-found page
-  assets/images/             local, licensed photography
-  assets/fonts/              self-hosted WOFF2 files + licences
-public/                      favicon, apple touch icon, robots.txt, .nojekyll
-.github/workflows/deploy.yml GitHub Pages deployment
+    layout/              Header, Footer, LanguageSwitch
+    sections/            Hero, Definition, Services, Patterns, Features,
+                         Reasons, Faq, Contact, SystemMap
+    work/                WorkPage and project-card presentation
+    seo/                 JsonLd
+    ui/                  Button, Logo, Section, headings and icons
+  pages/
+    index.astro          Persian homepage at the deployment root
+    en/index.astro       English homepage at /en/
+    work/index.astro     Persian portfolio at /work/
+    en/work/index.astro  English portfolio at /en/work/
+    404.astro            static not-found page
+    sitemap.xml.ts       generated sitemap with hreflang alternates
+    robots.txt.ts        generated robots file with the sitemap URL
+  styles/global.css      shared reset, layout, header, footer and primitives
+public/
+  brand/                 owner-supplied PBS logo and brand library
+  favicon.svg            PBS favicon
+  favicon-32.png         small PNG favicon
+  apple-touch-icon.png   PBS touch icon
+  icon-192.png           manifest icon
+  icon-512.png           manifest icon
+  site.webmanifest       installable-site metadata
+  og-image.png           1200 × 630 social preview
+.github/workflows/deploy.yml
+docs/PBS_Business_DNA.md
+docs/PBS_Design_System.md
 ```
 
-## Create a client demo
+## Content and localization
 
-Work from a copy of this repository for each client. Do not turn the canonical
-starter into one client's site.
+The Persian and English homepages are separate typed content files. The
+portfolio has its own content file for both locales. Edit them together; do not
+translate word for word at the expense of clarity, and do not make a claim in one
+locale that the other avoids. PBS facts live in the two briefs under `docs/`.
 
-1. **Read the brief.** Identify the primary action, required sections, visual
-   direction, content facts, and any assets supplied by the client.
-2. **Copy an example config** in `src/config/clients/` and rename it, for example
-   `src/config/clients/north-house.ts`.
-3. **Register it** in `src/config/site.ts` under `clients`; the registry key is
-   the value `CLIENT` selects.
-4. **Select and order sections** in the config's `sections` array. See the
-   section reference below. Write `navigation` as labels keyed by section
-   (`{ label, section }`); anchors are derived, so a nav item cannot point at a
-   section that does not render. Set `meta.locale` and, if needed,
-   `meta.direction`; `rtl` is inferred for Persian, Arabic, Hebrew, and Urdu
-   locales.
-5. **Write the content** in the config. Keep names, offers, prices, policies, and
-   testimonials in one place. If the client supplied no real facts, keep the
-   demo wording and the demo disclosure.
-6. **Set the visual direction** through `theme`. Change the fonts, palette,
-   radii, content width, section spacing, and the `hero.variant`. Persian demos
-   start from the variable `estedad` face for display, body, and emphasis.
-   Do not add client-specific CSS to shared components.
-7. **Add local images** under `src/assets/images/` and import them in the config.
-   Provide alt text, captions where useful, and `position` for crops. Record
-   provenance in `CREDITS.md`.
-8. **Run the checks** below at 360, 390, 768, and 1440 widths, including the
-   primary interaction paths.
-9. **Build and preview** the production output, including the deployment base
-   path. Do not publish unless that is explicitly requested.
+Key fields:
 
-Keep `demo.enabled` and the fictional-content note until the site contains only
-approved real client information. The contact form is simulated; keep its demo
-note unless a real form endpoint is implemented and tested.
+- `meta.locale` and `meta.direction` drive `<html lang>`/`dir` and locale
+  formatting. `meta.path` drives the locale home route. Canonical URLs come from
+  the built page path plus the deployment base.
+- `localeLinks` publishes the two locales. `src/lib/routes.ts` maps a page key
+  (`home`, `work`) to the equivalent path in each locale, so the language switch
+  and `hreflang` agree.
+- `navigation` can contain section entries and page entries. Section anchors are
+  derived by `src/lib/sections.ts`; page entries resolve through
+  `localePageHref()`. A fragment link without a rendered target fails the build.
+- `patterns` is an illustrative scenario ledger and `reasons` describes working
+  principles and capacity. Neither is a client case study or a claim of results.
+  The portfolio is the only place for real, permitted project work.
+- The hero uses an original conceptual scope map rendered as HTML and CSS. It
+  shows the kinds of work PBS combines; it is not a dashboard, real project or
+  performance claim.
 
-## Sections
+### Portfolio policy
 
-Sections are selected by `sections: SectionId[]`. The ids are declared once in
-`src/config/types.ts`; `src/lib/sections.ts` maps each one to its content key and
-derives the DOM id, the anchor, the heading id and the navigation entry. The
-supported ids and their configuration keys are:
+`src/config/pbs/work.ts` is intentionally empty in `projects` right now. While it
+is empty:
 
-| Section | Config key | Notes |
+- both portfolio routes render an honest publication state;
+- both routes are `noindex, follow`;
+- the sitemap excludes them;
+- the header and footer still link to the page.
+
+To publish a real project, add a `WorkProject` object with a title, summary,
+problem, scope, outcome and optional client/year/cover/live URL. Use a cover
+under `public/` only when the image belongs to the project and publication is
+allowed. The page becomes indexable and enters the sitemap automatically when
+the project is added to both locale portfolios. Never add a fictional project, invented screenshot
+or client name without permission.
+
+### Links and the deployment base
+
+- Use `href()` for root-relative public assets and routes.
+- Use `localeHref(site, target)` for any in-page fragment or config action.
+  On `/en/`, `#contact` must resolve to `/en/#contact`, not the Persian root.
+- Use `localePageHref(site, page)` for a page route in the current locale.
+- Use `pagePath()` only for a path that may already carry the base.
+- Keep canonical and `hreflang` URLs absolute and self-referential. The English
+  canonical must never point at the Persian page.
+- `src/lib/url.ts` and `src/lib/routes.ts` own these rules. Do not hardcode
+  `/pbs-website/`.
+
+## Configure the public contact channels
+
+**One source of truth:** [`src/config/pbs/contact.ts`](src/config/pbs/contact.ts).
+No phone number, handle or profile URL should appear anywhere else.
+
+| Field | Expected value | Empty behaviour |
 | --- | --- | --- |
-| `hero` | `hero` | Required first view; `split` or `immersive` variant |
-| `statement` | `statement` | Optional full-bleed image quote |
-| `story` | `story` | Editorial about section with facts and optional signature |
-| `services` | `services` | Responsive four-column or list service treatment |
-| `features` | `features` | Numbered places/process list |
-| `gallery` | `gallery` | CSS-column gallery with accessible lightbox |
-| `pricing` | `pricing` | Editorial rate/engagement rows, not a card grid |
-| `testimonials` | `testimonials` | Lead quote + supporting notes |
-| `faq` | `faq` | Native accessible `<details>` |
-| `contact` | `contact` | Contact details + simulated booking/inquiry form |
+| `whatsapp` | International number, digits only including country code, e.g. `989121234567` | Non-clickable "details coming soon" |
+| `phone` | Number as it should read, e.g. `+98 21 1234 5678` | Non-clickable "details coming soon" |
+| `telegram` | Full verified `https://` public profile URL | Non-clickable "details coming soon" |
+| `bale` | Full verified `https://` public profile URL supplied by PBS | Non-clickable "details coming soon" |
 
-To remove a section, remove its id from `sections` and leave or delete its data.
-Its navigation entry disappears with it. To reorder, reorder the ids. A listed
-section with no content is dropped rather than rendered empty, and any fragment
-link that no longer has a target fails the build with the dead links listed.
+Rules enforced by [`src/lib/contact.ts`](src/lib/contact.ts):
 
-To add a section:
+- WhatsApp builds `https://wa.me/<digits>` only from 8 to 15 digits.
+- Phone builds `tel:` only from a valid number; the displayed value stays human-readable.
+- Telegram and Bale accept an explicit `https:` URL only. The site does not guess
+  Bale URL formats or invent handles.
+- Messenger links open in a new tab with `noopener noreferrer`; phone links do not.
+- Any invalid or empty value falls back to the pending state. There is no dead
+  button, placeholder number or fake account.
+- The main CTA scrolls to the contact section. When no channel is configured,
+  that section states clearly that the official channels are being finalized.
 
-1. Add its id to `sectionIds` and its optional content type to `SiteConfig` in
-   `src/config/types.ts`.
-2. Add its content key to `sectionContentKeys` in `src/lib/sections.ts`.
-3. Create `src/components/sections/MySection.astro` that accepts
-   `{ site, section }` and uses `section.id` / `section.headingId` for its ids.
-4. Register it in `src/components/sections/index.ts`; the `satisfies` check
-   fails until the registry is complete.
-5. Add the content and the id to the active client config, plus a
-   `{ label, section }` navigation entry.
+There is no contact form, email endpoint, API or storage in the PBS site.
 
-Use existing UI primitives and tokens first. New sections should stay
-client-agnostic and receive all copy through `site`.
+## SEO
 
-## Branding and design tokens
+- `src/pages/sitemap.xml.ts` generates the sitemap from `src/lib/routes.ts` and
+  includes reciprocal `hreflang` links plus `x-default`. The portfolio is
+  included only when both locale portfolios contain at least one real project.
+- `src/pages/robots.txt.ts` generates `/robots.txt` with the absolute sitemap URL
+  for the current deployment base.
+- `src/lib/schema.ts` generates JSON-LD from visible content: Organization,
+  WebSite, WebPage, FAQPage on the homepage, and breadcrumb plus ItemList on a
+  published portfolio page. No ratings, prices or client claims are invented.
+- Every indexable page has a self-referencing canonical. The portfolio is
+  `noindex, follow` while empty.
+- Titles and descriptions are specific to each page and stay within a useful
+  search-result length. Headings follow one `h1` per page and a logical hierarchy.
 
-All client-specific visual choices live in `theme`:
+## Brand assets
 
-- `colors`: canvas, surface, ink, muted, accent, accent ink, line, tint,
-  on-image text, footer background, footer ink
-- `fonts`: display, body, and emphasis faces from `src/lib/fonts.ts`
-- `shape`: media/button radii and the arched hero option
-- `layout`: content width, gutters, and section spacing
+The owner-supplied PBS brand library is preserved under `public/brand/`. The
+header and footer use two approved variants:
 
-`src/lib/theme.ts` exposes `themeFor(theme)`, which returns the CSS and the font
-preloads in one call. Custom-property names are derived from the token names
-(`accentInk` becomes `--c-accent-ink`), and one traversal feeds both the
-`@font-face` rules and the preload list. `global.css` consumes those custom
-properties directly (`var(--c-accent)`).
+- `public/brand/Logo/pbs-logo-on-light.svg` in the light header and mobile menu.
+  It is the PBS Navy wordmark with the cyan spark; intrinsic size `747 × 251`.
+- `public/brand/Logo/pbs-logo-primary-dark.svg` in the footer. It is the
+  transparent white wordmark with the cyan spark; intrinsic size `747 × 251`.
+- `public/brand/Logo/pbs-logo-tagline-dark.svg` remains in the owner's library
+  for dark brand surfaces outside this website.
 
-### Language, direction, and interface strings
+The logo files are not redrawn, stretched, recoloured or colour-filtered. Each
+locale config declares both `brand.logo` (light surfaces) and `brand.logoOnDark`
+(the footer), and the `Logo` component preserves the intrinsic aspect ratio.
 
-- `meta.locale` is the BCP 47 tag used for `<html lang>`, Open Graph, number and
-  date formatting, and the interface dictionary. Use `fa-IR` for the Persian
-  demo.
-- `meta.direction` is optional. It defaults from the locale (`fa`, `ar`, `he`,
-  `ur`, and similar languages become `rtl`); set it explicitly when the content
-  language and the intended flow differ.
-- `src/lib/language.ts` exposes `pageLanguage(site)`: the interface copy (`t`),
-  the language tag, the direction, the Open Graph locale, and locale-aware
-  `number`, `index` and `year` formatting. Modules call it once and read
-  `language.t`; they never hardcode labels or thread `meta.locale` themselves.
-- `src/lib/format.ts` owns the formatting rules and is shared with the browser
-  modules, so the lightbox counts in the same digits as the menu and footer.
-- Override a label for one client with the optional `ui` object. Overrides merge
-  with the locale defaults by shape at any depth, so a new group needs no code:
+Public metadata and install icons use:
 
-```ts
-ui: {
-  contact: "تماس با ما",
-  form: { guests: "تعداد مهمان" },
-  gallery: { next: "تصویر بعدی" },
-},
+- `public/favicon.svg`, `public/favicon-32.png`, `public/apple-touch-icon.png`
+- `public/icon-192.png`, `public/icon-512.png`, `public/site.webmanifest`
+- `public/og-image.png` (1200 × 630), referenced as `meta.socialImage`
+
+To replace a logo, update the file and the matching `brand.logo` or
+`brand.logoOnDark` width/height in both locale configs. Keep the transparent
+ratio; do not stretch it. To replace the social preview, update
+`public/og-image.png` and keep the `1200 × 630` crop. The original brand files
+also include the usage notes in `public/brand/web-usage-fa.md`.
+
+## Fonts
+
+PBS uses:
+
+- **Vazirmatn** for Persian (Arabic + Latin coverage), OFL 1.1
+- **Inter** for English (Latin variable subset), OFL 1.1
+
+Both are local variable WOFF2 files in `src/assets/fonts/` with their full
+licence texts in `src/assets/fonts/licenses/`. They are registered in
+`src/lib/fonts.ts`; the active theme chooses one family per locale and preloads
+only that file. There is no Google Fonts or CDN request at runtime.
+
+Font provenance is recorded in [CREDITS.md](CREDITS.md). When changing a face,
+add the WOFF2 and licence, register it, update the locale theme, and record it in
+CREDITS.
+
+## Design tokens and page sections
+
+`src/config/pbs/shared.ts` owns the shared light palette, shape, content width
+and spacing. `src/lib/theme.ts` emits one light theme (`color-scheme: only
+light`). The contact section scopes semantic tokens for its intentional deep
+surface; the footer does the same. There is no `paper` alternate palette, dark
+token set or theme switch.
+
+Current homepage order:
+
+```text
+hero → services → patterns → features → reasons → definition → faq → contact
 ```
 
-- Persian typography is applied with `:lang(fa)` rules at the end of
-  `global.css`: looser line height, no tracking or uppercase, larger small
-  labels, and a calmer display scale. Layout uses logical properties
-  (`margin-inline`, `inset-inline`, `border-inline`), so the same components
-  mirror cleanly for English.
-- Put Latin identifiers such as emails, phone numbers, and URLs inside
-  `<bdi dir="ltr">` in RTL prose. Inputs that accept Latin values use
-  `dir="ltr"`. Native `type="date"` controls follow the browser's locale; add a
-  Jalali picker only when a client needs one.
-- To add another language, add its dictionary in `src/lib/language.ts`, add it
-  to `languageOf`, and set the locale in the client config. Modules do not need
-  changes.
-- `{brand}` in an interface string is interpolated from `brand.name`; no page
-  needs to substitute it.
+The hero carries the offer and primary action; services explain the four
+delivery families; patterns are illustrative scenarios; features is the single
+four-stage process; reasons holds the working principles; definition is a
+compact identity aside; FAQ and the deep contact/footer close the page.
 
-A new colour token needs the theme type, each example config, and the CSS rule
-that uses `var(--c-<token>)`. The custom-property name is derived, so no module
-change is needed. Avoid ad-hoc colour overrides in individual components.
+The portfolio pages add a page hero, an honest empty or project state, a
+publication standard and a closing contact band.
 
-### Changing fonts
+To add or remove a homepage section, follow the contract in `src/config/types.ts`
+and `src/lib/sections.ts`, register it in `src/components/sections/index.ts`, and
+add its navigation entry to both locale configs. A listed section without content
+is dropped; a dead fragment link fails the build.
 
-The default Persian theme uses Estedad (display, body, and emphasis). The English
-examples use Fraunces + Manrope and Bricolage Grotesque + Manrope. Fonts are
-local WOFF2 variable files and are preloaded by the active theme. Estedad covers
-Persian/Arabic and Latin, so mixed Persian/English copy keeps one visual voice.
+## Images and interaction
 
-Estedad is an OFL-licensed, modern Iran Sans-style variable typeface. Commercial
-faces such as Iran Sans, IRANSansX, and Yekan Bakh are not bundled; if a client
-owns a licence, add the WOFF2 and licence text, register it in `src/lib/fonts.ts`,
-and use its key in the client theme.
-
-To add a face:
-
-1. Add the licensed WOFF2 file to `src/assets/fonts/` and its licence text to
-   `src/assets/fonts/licenses/`.
-2. Add an import and metadata entry in `src/lib/fonts.ts`.
-3. Add the face key to `FontFaceKey` and use it in the client theme.
-4. Update `CREDITS.md`.
-
-Estedad includes Persian/Arabic and Latin glyphs; the other faces are
-Latin-only. Add the correct subset and licence when a client's language requires
-another script.
-
-## Images
-
-Client images are imported from `src/assets/images/` and passed through the
-`Figure` component with a role — `hero`, `banner`, `scene`, `figure` or `thumb` —
-so Astro can generate responsive WebP output. The role owns the ratio, widths,
-sizes, quality and loading priority; `src/lib/images.ts` holds the presets and
-also derives the lightbox's full-size URL and the 1200 × 630 social card. The
-hero image is eager and high priority; all gallery and below-the-fold images are
-lazy. The gallery lightbox requests the larger image only when opened.
-
-Guidelines:
-
-- Use local, licensed files. Do not use runtime remote image URLs.
-- Provide meaningful `alt` text for every image; decorative text should not be
-  embedded only in the photograph.
-- Use `position` to control crops where the focal point is off-centre.
-- Keep enough source resolution for the largest rendered size, but avoid
-  unnecessary multi-megabyte originals.
-- If an image is omitted, `Figure` renders a designed, accessible fallback whose
-  label comes from the page language.
-- Update `CREDITS.md` with the source and licence for every new file.
-
-## Interaction and accessibility
-
-- The mobile menu, lightbox and demo form are modules in `src/lib/client/`.
-  Templates declare data attributes and call one `init`; the lightbox receives
-  its direction and locale from the server and shares the page's index
-  formatter.
-- The mobile menu is a native `<dialog>`: focus-trapped, Escape-closable, and
-  restores focus.
-- FAQ items use native `<details>`; no JavaScript is required.
-- The gallery is visible without JavaScript. The lightbox adds keyboard arrows,
-  Escape, focus management, and a live caption. Arrow direction follows the
-  document direction, so left/right mean the visible previous/next image in both
-  RTL and LTR.
-- The form is explicitly simulated. It validates natively, prevents submission,
-  shows the configured success message, and sends/stores nothing.
-- Motion uses transform/opacity, respects `prefers-reduced-motion`, and the
-  scroll reveal is progressive enhancement with `animation-timeline`.
-- Use semantic headings, visible focus rings, 44px minimum interactive targets,
-  and sufficient contrast when changing the palette.
-- Directional icons mirror in RTL; do not add physical `left`/`right` rules when
-  a logical property expresses the same intent.
-
-If a future demo needs genuinely stateful UI, add one small Svelte island only
-when the requirement cannot be met with native HTML. Do not install a UI
-framework by default.
+- The PBS public pages contain no stock photography. The hero scope map and
+  portfolio empty state are original CSS compositions. A future project cover
+  may be added only for real, permitted work.
+- Icons are Lucide line icons rendered inline; no icon runtime dependency is
+  shipped to the browser.
+- The header is a sticky light surface with a responsive glass treatment and a
+  solid `@supports` fallback. It is not a theme switch.
+- The mobile menu uses a native `<dialog>`, traps focus, closes on Escape and
+  restores focus. Without JavaScript, the button is hidden and a plain navigation
+  fallback is shown.
+- FAQ items use native `<details>` and need no JavaScript.
+- Motion is limited to hover/focus transitions and the short mobile-menu entry.
+  There are no scroll-driven reveals; content is never hidden behind an
+  animation. Motion is disabled under `prefers-reduced-motion: reduce`.
+- Interactive targets are at least 44 px in both axes where the layout allows,
+  focus is visible, and contact links use safe external-link attributes.
 
 ## Deployment
 
-### GitHub Pages (project repository)
+The included [Pages workflow](.github/workflows/deploy.yml) is pinned to full
+commit SHAs, installs from the lockfile, runs `npm run verify`, and requests only
+the permissions Pages needs. This repository change does **not** deploy it.
 
-The included workflow deploys on every push to `main` and can also be run
-manually. In the repository, set **Settings → Pages → Source** to **GitHub
-Actions**.
+To enable publication later, the owner must:
 
-`astro.config.mjs` derives both values from the GitHub environment:
+1. Open the repository on GitHub.
+2. Go to **Settings → Pages**.
+3. Set **Source** to **GitHub Actions**.
+4. Push to `main` or run the workflow manually.
 
-- `site`: `https://<owner>.github.io`
-- `base`: `/<repository>/`
+`astro.config.mjs` derives `site` and `base` in this order: `SITE_URL` /
+`BASE_PATH`, then `public/CNAME`, then GitHub repository values. A project
+repository therefore builds at `https://<owner>.github.io/<repo>/`; a
+`<owner>.github.io` repository builds at the root. Keep `output: "static"`.
 
-The workflow pins `actions/checkout`, `withastro/action`, and
-`actions/deploy-pages` to commit SHAs, uses Node 24, npm 12.2.1, the committed
-lockfile, and runs `npm run verify` before uploading. It requests only the
-permissions required for Pages.
-
-### User site or organization site
-
-A repository named `<owner>.github.io` is detected and built at the root path.
-No configuration change is needed.
-
-### Custom domain
-
-1. Add the domain as one line in `public/CNAME`, for example
-   `demos.example.com`.
-2. Configure DNS as documented by GitHub Pages.
-3. Keep the Pages source set to GitHub Actions.
-
-`astro.config.mjs` reads `public/CNAME` and sets `site` to the custom domain and
-`base` to `/`. Alternatively, override explicitly:
-
-```sh
-SITE_URL=https://demos.example.com BASE_PATH=/ npm run build
-```
-
-### Local project-path verification
-
-```sh
-SITE_URL=https://OWNER.github.io BASE_PATH=/REPO/ npm run build
-BASE_PATH=/REPO/ npm run preview
-```
-
-Open the URL printed by Astro, including the `/REPO/` path. Anchors, fonts,
-favicon, scripts, gallery full images, and social metadata should all resolve
-under that prefix. The 404 page is emitted as `dist/404.html` and its button
-returns to the site root.
-
-Environment overrides are useful for other static hosts as well. `SITE_URL` is
-used for canonical and Open Graph URLs; `BASE_PATH` controls every generated
-asset path.
+The project-path build above is required before claiming GitHub Pages
+compatibility. The static `404.html` is generated; there is no server rewrite.
 
 ## Verification
 
-Run these from the repository root:
+Start from the real scripts:
 
 ```sh
+npm ci
 npm run check
-npm run build                    # Persian default
-CLIENT=casa-marea npm run build  # English LTR
-CLIENT=atelier-sora npm run build
-npm run verify
+npm run build
+SITE_URL=https://imdanialrashidi.github.io BASE_PATH=/pbs-website/ npm run build
+BASE_PATH=/pbs-website/ npm run preview
 ```
 
-Then inspect the production preview:
+Browser checks used for this site:
 
-```sh
-npm run preview
-```
+- 320, 360, 390, 768, 1024, 1120 and 1440 wide; check no horizontal overflow and
+  that the headline, supporting line and primary CTA are visible in the first
+  360 × 640 and 390 × 844 viewports.
+- Persian RTL and English LTR: headings, navigation, footer and language switch
+  mirror correctly.
+- OS dark preference: the rendered page stays light (white canvas, light header)
+  with no theme attributes or theme storage.
+- No-JS: the plain navigation is usable, the menu trigger is hidden and FAQ
+  details still open.
+- Mobile menu open/close, Escape, focus containment/return and 44 px controls.
+- FAQ keyboard operation and open/closed state.
+- Language switch round-trip between `/` and `/en/`, and between `/work/` and
+  `/en/work/`, including locale-local anchors.
+- Sticky-header anchor landing: no heading is hidden under the header after
+  navigation.
+- Contact channels: pending state with empty identifiers; safe links with
+  verified identifiers (test in a throwaway build, then restore the empty
+  config if the values are not ready).
+- `prefers-reduced-motion: reduce` leaves all content visible.
+- Production base-path HTML: favicon, manifest, CSS, WOFF2, logo, canonical,
+  `hreflang`, Open Graph, JSON-LD, sitemap, robots and the static 404.
 
-Recommended browser checks:
-
-- 360px, 390px, 768px, and 1440px widths: no horizontal overflow, readable type,
-  primary CTA visible, touch targets at least 44px.
-- Repeat the layout checks in both directions: the Persian default is RTL and
-  the English configs are LTR. Confirm menu order, form labels, gallery arrows,
-  and footer alignment mirror correctly.
-- Open/close the mobile menu with touch and Escape; tab focus stays inside.
-- Open a gallery image, use arrow keys, close with Escape; the full image loads.
-- Open and close FAQ items with keyboard.
-- Submit the form empty and complete; verify native validation and the explicit
-  simulated-success message.
-- Emulate `prefers-reduced-motion: reduce` and confirm content remains visible
-  and animation is effectively disabled.
-- Build with the repository base path and repeat the link/asset checks.
-
-Lighthouse can be run against the production preview, but mobile 90+ is a goal,
-not a guarantee. Report measured results with the viewport, throttling, build
-path, and date used.
+Lighthouse and Core Web Vitals were not measured for this build. Do not report
+scores that were not actually captured.
 
 ## Delivery boundary
 
-The starter is ready to be copied for a new client after the checks above pass.
-This repository does not commit, push, publish, or deploy. Deployment is a
-separate, explicitly approved action.
-
-See [CREDITS.md](CREDITS.md) for photography and font licensing. See
-[AGENTS.md](AGENTS.md) for the agent operating rules.
+This repository does not commit, push, open a pull request, publish, or deploy.
+Deployment is a separate, explicitly requested action.

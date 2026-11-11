@@ -1,59 +1,75 @@
 # Credits and asset provenance
 
-## Photography
+## PBS brand assets
 
-All photography is stored locally in `src/assets/images/` and was downloaded from
-[Unsplash](https://unsplash.com) on 2026-10-31. The images were cropped, resized,
-stripped of metadata, and colour-graded for a consistent editorial treatment.
-The [Unsplash License](https://unsplash.com/license) permits free commercial use
-and does not require attribution. Photographer names were not embedded in the
-downloaded source URLs, so only the verifiable source URL is recorded here.
+The PBS logo, favicon set, touch icon and social preview were supplied by the
+PBS owner in `public/brand/` and copied to the public paths used by the site
+(`favicon.svg`, `favicon-32.png`, `apple-touch-icon.png`, `icon-192.png`,
+`icon-512.png`, `og-image.png`). They are used only for PBS and are not
+redrawn, stretched, recoloured or substituted with another company's mark.
 
-| Local file | Subject | Source |
+| Asset | Use | Provenance |
 | --- | --- | --- |
-| `coast.jpg` | Atlantic beach at sunset | <https://images.unsplash.com/photo-1473116763249-2faaef81ccda> |
-| `terrace.jpg` | Restaurant terrace over water | <https://images.unsplash.com/photo-1559339352-11d035aa65de> |
-| `house.jpg` | Timber-and-glass house among trees | <https://images.unsplash.com/photo-1600607688969-a5bfcd646154> |
-| `living.jpg` | Bright living room with linen seating | <https://images.unsplash.com/photo-1600210492486-724fe5c67fb0> |
-| `bedroom.jpg` | Bedroom with linen, plants, and woven light | <https://images.unsplash.com/photo-1615874959474-d609969a20ed> |
-| `dining.jpg` | Dark timber dining room | <https://images.unsplash.com/photo-1600607687920-4e2a09cf159d> |
-| `cooking.jpg` | Hands preparing herbs on a board | <https://images.unsplash.com/photo-1551218808-94e220e084d2> |
-| `cafe.jpg` | Café interior with timber tables | <https://images.unsplash.com/photo-1521017432531-fbd92d768814> |
-| `cove.jpg` | Turquoise cove framed by pines | <https://images.unsplash.com/photo-1510414842594-a61c69b5ae57> |
+| `public/brand/Logo/pbs-logo-on-light.svg` | Light header and mobile-menu logo: PBS Navy wordmark with cyan spark | Owner-supplied PBS vector |
+| `public/brand/Logo/pbs-logo-primary-dark.svg` | Footer logo: transparent white wordmark with cyan spark | Owner-supplied PBS vector |
+| `public/brand/Logo/pbs-logo-tagline-dark.svg` | Full name-and-tagline variant retained for dark brand surfaces outside the website | Owner-supplied PBS vector |
+| `public/brand/Favicon/favicon.svg` | Browser icon source | Owner-supplied PBS vector |
+| `public/brand/Favicon/*.png` | Apple touch and manifest icons | Owner-supplied PBS exports |
+| `public/brand/pbs-og-image-1200x630.png` | Source for `public/og-image.png` | Owner-supplied PBS social card |
 
-When replacing images for a client, add the new provenance here. Do not add
-remote image URLs to the site at runtime; commit licensed files locally instead.
+The wider owner-supplied library, including mono and wordmark-only variants,
+remains in `public/brand/` for the owner's future use. The usage note is
+`public/brand/web-usage-fa.md`. Confirm final trademark and asset ownership with
+the owner; this file does not grant a licence.
 
 ## Fonts
 
-Fonts are self-hosted as variable WOFF2 files in `src/assets/fonts/`. They are
-licensed under the SIL Open Font License 1.1. The full licence texts are kept
-alongside the fonts in `src/assets/fonts/licenses/`.
+The public PBS pages use two self-hosted variable WOFF2 files. Both families are
+licensed under the SIL Open Font License 1.1, and the full licence texts are
+committed alongside the files in `src/assets/fonts/licenses/`.
 
 | Font | Role | Source | Licence |
 | --- | --- | --- | --- |
-| Estedad | Persian display, body, and emphasis (Arabic + Latin) | [Estedad](https://github.com/aminabedi68/Estedad) | [OFL 1.1](https://openfontlicense.org) |
-| Fraunces | English display and emphasis | [Google Fonts](https://fonts.google.com/specimen/Fraunces) | [OFL 1.1](https://openfontlicense.org) |
-| Manrope | English body and UI | [Google Fonts](https://fonts.google.com/specimen/Manrope) | [OFL 1.1](https://openfontlicense.org) |
-| Bricolage Grotesque | English alternate display | [Google Fonts](https://fonts.google.com/specimen/Bricolage+Grotesque) | [OFL 1.1](https://openfontlicense.org) |
+| Vazirmatn | Persian display, body and emphasis (Arabic + Latin) | [Vazirmatn](https://github.com/rastikerdar/vazirmatn), v33.003 | [OFL 1.1](https://openfontlicense.org) |
+| Inter | English display, body and emphasis (Latin subset) | [Inter](https://github.com/rsms/inter) / Google Fonts Latin variable subset (v20) | [OFL 1.1](https://openfontlicense.org) |
 
-The Latin faces were obtained from the Google Fonts CSS endpoint. Estedad came
-from its official GitHub repository as a variable WOFF2. If a client needs
-Cyrillic, another Arabic-script language, or an additional character set, add
-the appropriate subset and record its source in this file.
+The Inter file is the Google Fonts Latin variable subset (v20), downloaded on
+2026-11-08 from the Google Fonts CSS service; its original project is
+[rsms/inter](https://github.com/rsms/inter). The Vazirmatn file is the official
+variable WEB font from the v33.003 release.
 
-## Icons
+These are the only font files in the repository. There are no starter or demo
+families, and no font is loaded from a remote service at runtime.
+
+## Icons and original graphics
 
 Icons come from [Lucide](https://lucide.dev) through the `@lucide/astro` package
 and are inlined at build time. Lucide is ISC licensed.
 
-## Content
+The conceptual scope map in `src/components/sections/SystemMap.astro` and the
+portfolio empty-state document in `src/components/work/WorkPage.astro` are
+original HTML/CSS compositions made for PBS. They are not stock illustrations.
 
-Naranj House, Casa Marea, and Atelier Sora are fictional businesses created for
-this starter. Names, locations, rates, policies, guest notes, client notes, and
-project names are illustrative demo content, not real business claims. The
-footer of the default site and the demo notes beside the forms state this. The
-photographs are shared across the demos; the Persian alt text describes the
-image rather than claiming a real location. Keep the disclosures when the content
-is fictional, or replace all fictional content with approved real client content
-before removing them.
+## Photography
+
+The PBS public pages currently use no photography. The only image assets are the
+owner-supplied brand logo and social preview.
+
+If a future project cover is added, it must belong to that real project and be
+published with permission. Add its local source, photographer or owner, licence
+and any usage restriction to this file before shipping. Do not add stock images
+of people, offices or dashboards to imply a history or client base PBS does not
+have.
+
+## Content and claims
+
+PBS business facts are taken from the confirmed briefs
+[`docs/PBS_Business_DNA.md`](docs/PBS_Business_DNA.md) and
+[`docs/PBS_Design_System.md`](docs/PBS_Design_System.md). Public copy does not
+invent clients, project counts, staff numbers, offices, awards, certifications,
+revenue or performance results.
+
+The portfolio in `src/config/pbs/work.ts` publishes only real work with
+permission. While `projects` is empty, the page shows an honest publication
+state and is marked `noindex`; no fictional client, screenshot or case study is
+used to fill it.

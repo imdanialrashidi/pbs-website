@@ -1,37 +1,48 @@
 ---
-import type { SiteConfig } from "../../config/types";
+import type { PageKey, SiteConfig } from "../../config/types";
 import Button from "../ui/Button.astro";
 import Icon from "../ui/Icon.astro";
 import Logo from "../ui/Logo.astro";
+import LanguageSwitch from "./LanguageSwitch.astro";
 import { pageLanguage } from "../../lib/language";
+import { navigationFor } from "../../lib/navigation";
 import { hasSection, pageFor } from "../../lib/sections";
-import { href } from "../../lib/url";
+import { localeHref, localeHome } from "../../lib/url";
 
 interface Props {
   site: SiteConfig;
+  pageKey?: PageKey;
 }
 
-const { site } = Astro.props;
+const { site, pageKey = "home" } = Astro.props;
 const language = pageLanguage(site);
 const ui = language.t;
 const page = pageFor(site);
+const navigation = navigationFor(site, pageKey);
+const home = localeHome(site);
 
 const headerAction = site.headerAction
-  ? { ...site.headerAction, href: href(site.headerAction.href) }
+  ? { ...site.headerAction, href: localeHref(site, site.headerAction.href) }
   : undefined;
 const contact = hasSection(page, "contact") ? site.contact : undefined;
+const contactHref = contact ? localeHref(site, "#contact") : undefined;
 ---
 
-<a class="skip-link" href={href("#main")}>{ui.skipToContent}</a>
+<a class="skip-link" href="#main">{ui.skipToContent}</a>
 
 <header class="site-header">
   <div class="shell header-inner">
-    <Logo brand={site.brand} />
+    <Logo brand={site.brand} href={home} showDescriptor={false} priority class="header-logo" />
 
     <nav class="desktop-nav" aria-label={ui.primaryNavigation}>
       {
-        page.navigation.map((item) => (
-          <a class="nav-link" href={href(item.anchor)}>
+        navigation.map((item) => (
+          <a
+            class="nav-link"
+            href={item.href}
+            aria-current={item.current ? "page" : undefined}
+            data-nav-section={item.section ?? undefined}
+          >
             {item.label}
           </a>
         ))
@@ -39,11 +50,13 @@ const contact = hasSection(page, "contact") ? site.contact : undefined;
     </nav>
 
     <div class="header-actions">
+      <div class="header-lang">
+        <LanguageSwitch site={site} pageKey={pageKey} />
+      </div>
       {
         headerAction && (
           <Button
             {...headerAction}
-            icon="arrow-up-right"
             class="header-cta"
           />
         )
@@ -66,10 +79,10 @@ const contact = hasSection(page, "contact") ? site.contact : undefined;
 <noscript>
   <nav class="noscript-nav" aria-label={ui.primaryNavigation}>
     <div class="shell noscript-nav__inner">
-      {page.navigation.map((item) => <a class="nav-link" href={href(item.anchor)}>{item.label}</a>)}
+      {navigation.map((item) => <a class="nav-link" href={item.href}>{item.label}</a>)}
       {headerAction && (
         <a
-          class:list={["btn", `btn--${headerAction.variant ?? "accent"}`]}
+          class:list={["btn", `btn--${headerAction.variant ?? "primary"}`]}
           href={headerAction.href}
         >
           {headerAction.label}
@@ -87,7 +100,7 @@ const contact = hasSection(page, "contact") ? site.contact : undefined;
 >
   <div class="menu-shell">
     <div class="menu-header">
-      <Logo brand={site.brand} showDescriptor={false} />
+      <Logo brand={site.brand} href={home} showDescriptor={false} class="menu-logo" />
       <button
         class="menu-close"
         type="button"
@@ -101,8 +114,13 @@ const contact = hasSection(page, "contact") ? site.contact : undefined;
 
     <nav class="menu-links" aria-label={ui.mobileNavigation}>
       {
-        page.navigation.map((item, index) => (
-          <a class="menu-link" href={href(item.anchor)}>
+        navigation.map((item, index) => (
+          <a
+            class="menu-link"
+            href={item.href}
+            aria-current={item.current ? "page" : undefined}
+            data-nav-section={item.section ?? undefined}
+          >
             <span class="menu-link__index" aria-hidden="true">
               {language.index(index + 1)}
             </span>
@@ -114,19 +132,20 @@ const contact = hasSection(page, "contact") ? site.contact : undefined;
 
     <div class="menu-footer">
       {headerAction && (
-        <Button {...headerAction} icon="arrow-up-right" class="w-full" />
+        <Button {...headerAction} class="menu-footer__cta" />
       )}
-      {contact && (
-        <a href={`mailto:${contact.details.email}`}>
-          <bdi dir="ltr">{contact.details.email}</bdi>
-        </a>
-      )}
+      <div class="menu-footer__meta">
+        {contactHref && <a href={contactHref}>{ui.contact}</a>}
+        <LanguageSwitch site={site} pageKey={pageKey} />
+      </div>
     </div>
   </div>
 </dialog>
 
 <script>
   import { initMenu } from "../../lib/client/menu";
+  import { initSectionNav } from "../../lib/client/section-nav";
 
   initMenu();
+  initSectionNav();
 </script>

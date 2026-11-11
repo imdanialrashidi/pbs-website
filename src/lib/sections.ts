@@ -3,7 +3,7 @@ import type { SectionId, SiteConfig } from "../config/types";
 /**
  * Page composition.
  *
- * A section id is asserted in exactly one place — this module — and everything
+ * A section id is asserted in exactly one place, this module, and everything
  * else derives from it: the DOM id, the anchor every link points at, the
  * heading id `aria-labelledby` refers to, and the navigation entry. A link to a
  * section that does not render fails the build instead of shipping.
@@ -32,13 +32,11 @@ export interface Page {
 /** The config key that carries each section's content. */
 const sectionContentKeys = {
   hero: "hero",
-  statement: "statement",
-  story: "story",
+  definition: "definition",
   services: "services",
   features: "features",
-  gallery: "gallery",
-  pricing: "pricing",
-  testimonials: "testimonials",
+  patterns: "patterns",
+  reasons: "reasons",
   faq: "faq",
   contact: "contact",
 } as const satisfies Record<SectionId, keyof SiteConfig>;
@@ -112,9 +110,11 @@ export function pageFor(site: SiteConfig): Page {
   assertLinksResolve(site, anchors);
 
   const rendered = new Set(sections.map((section) => section.id));
-  const navigation = site.navigation
-    .filter((item) => rendered.has(item.section))
-    .map((item) => ({ label: item.label, anchor: `#${item.section}` as const }));
+  const navigation = site.navigation.flatMap((item) =>
+    "section" in item && rendered.has(item.section)
+      ? [{ label: item.label, anchor: `#${item.section}` as const }]
+      : [],
+  );
 
   return { sections, navigation };
 }

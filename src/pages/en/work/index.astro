@@ -1,0 +1,32 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import WorkPage from "../../../components/work/WorkPage.astro";
+import { pbsSites, pbsWorkPages } from "../../../config/site";
+import { breadcrumbSchema, workItemListSchema } from "../../../lib/schema";
+import { href, pagePath } from "../../../lib/url";
+
+const site = pbsSites.en;
+const work = pbsWorkPages.en;
+const noindex =
+  pbsWorkPages.fa.projects.length === 0 || pbsWorkPages.en.projects.length === 0;
+
+const siteUrl = Astro.site ?? new URL(Astro.url.origin);
+const canonical = new URL(pagePath(Astro.url.pathname), siteUrl).href;
+const homeUrl = new URL(href("/"), siteUrl).href;
+const projectList = workItemListSchema(canonical, work.projects, work.breadcrumb.current);
+const extraSchema = [
+  breadcrumbSchema(canonical, homeUrl, work.breadcrumb.home, work.breadcrumb.current),
+  ...(projectList ? [projectList] : []),
+];
+---
+
+<BaseLayout
+  site={site}
+  pageKey="work"
+  title={work.meta.title}
+  description={work.meta.description}
+  noindex={noindex}
+  extraSchema={extraSchema}
+>
+  <WorkPage site={site} work={work} />
+</BaseLayout>

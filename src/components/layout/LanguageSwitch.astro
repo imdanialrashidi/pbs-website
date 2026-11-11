@@ -1,0 +1,106 @@
+---
+import type { PageKey, SiteConfig } from "../../config/types";
+import { pageLanguage } from "../../lib/language";
+import { pageAlternates } from "../../lib/routes";
+import { href } from "../../lib/url";
+
+interface Props {
+  site: SiteConfig;
+  pageKey?: PageKey;
+  class?: string;
+}
+
+const { site, pageKey = "home", class: className } = Astro.props;
+const ui = pageLanguage(site).t;
+const links = pageAlternates(site, pageKey);
+---
+
+{
+  links.length > 1 && (
+    <div
+      class:list={["lang-switch", className]}
+      role="group"
+      aria-label={ui.languageSwitch}
+    >
+      {links.map((link) =>
+        link.current ? (
+          <span
+            class="lang-switch__item lang-switch__item--current"
+            lang={link.locale}
+            aria-current="page"
+            title={link.label}
+          >
+            {link.shortLabel}
+          </span>
+        ) : (
+          <a
+            class="lang-switch__item"
+            href={href(link.path)}
+            lang={link.locale}
+            hreflang={link.locale}
+            title={link.label}
+            aria-label={`${ui.languageSwitch}: ${link.label}`}
+          >
+            {link.shortLabel}
+          </a>
+        ),
+      )}
+    </div>
+  )
+}
+
+<style>
+  .lang-switch {
+    display: inline-flex;
+    min-height: 2.75rem;
+    overflow: hidden;
+    align-items: stretch;
+    border: 1px solid var(--c-line);
+    border-radius: var(--shape-button);
+    background: var(--c-tint);
+  }
+
+  .lang-switch__item {
+    display: inline-flex;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    color: var(--c-muted);
+    font-family: var(--type-body);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    text-transform: uppercase;
+    transition:
+      background-color 160ms ease,
+      color 160ms ease;
+  }
+
+  .lang-switch__item + .lang-switch__item {
+    border-inline-start: 1px solid var(--c-line);
+  }
+
+  .lang-switch__item:hover {
+    background: var(--c-surface);
+    color: var(--c-ink);
+  }
+
+  .lang-switch__item--current {
+    background: var(--c-action);
+    color: var(--c-action-ink);
+  }
+
+  .lang-switch__item--current:hover {
+    background: var(--c-action);
+    color: var(--c-action-ink);
+  }
+
+  .lang-switch__item:focus-visible {
+    position: relative;
+    z-index: 1;
+    outline: 2px solid var(--c-focus);
+    outline-offset: -2px;
+  }
+</style>

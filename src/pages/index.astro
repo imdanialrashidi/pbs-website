@@ -1,13 +1,14 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { site } from "../config/site";
+import { pbsSites } from "../config/site";
 import { sectionComponents } from "../components/sections";
 import { pageFor } from "../lib/sections";
 
+const site = pbsSites.fa;
 const page = pageFor(site);
 ---
 
-<BaseLayout>
+<BaseLayout site={site}>
   {
     page.sections.map((section) => {
       const SectionComponent = sectionComponents[section.id];

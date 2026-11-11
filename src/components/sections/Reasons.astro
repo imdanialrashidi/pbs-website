@@ -1,0 +1,194 @@
+---
+import type { SiteConfig } from "../../config/types";
+import Section from "../ui/Section.astro";
+import SectionHeading from "../ui/SectionHeading.astro";
+import { pageLanguage } from "../../lib/language";
+import type { SectionSlot } from "../../lib/sections";
+
+interface Props {
+  site: SiteConfig;
+  section: SectionSlot;
+}
+
+const { site, section } = Astro.props;
+const reasons = site.reasons;
+const language = pageLanguage(site);
+---
+
+{
+  reasons && (
+    <Section id={section.id} labelledby={section.headingId} class="reasons">
+      <div class="reasons__layout">
+        <div class="reasons__intro">
+          <SectionHeading
+            eyebrow={reasons.eyebrow}
+            headline={reasons.headline}
+            intro={reasons.intro}
+            id={section.headingId}
+            layout="aside"
+          />
+
+          {reasons.quote && (
+            <blockquote class="reasons__quote">
+              <p>{reasons.quote}</p>
+              {reasons.quoteAttribution && <footer>{reasons.quoteAttribution}</footer>}
+            </blockquote>
+          )}
+        </div>
+
+        <ol class="reasons__list">
+          {reasons.items.map((item, index) => (
+            <li class="reason">
+              <span class="reason__index" aria-hidden="true">
+                {language.index(index + 1)}
+              </span>
+              <div class="reason__copy">
+                <h3 class="reason__title">{item.title}</h3>
+                <p class="reason__description">{item.description}</p>
+              </div>
+              {item.meta && <span class="reason__meta">{item.meta}</span>}
+            </li>
+          ))}
+        </ol>
+      </div>
+    </Section>
+  )
+}
+
+<style>
+  .reasons__layout {
+    display: grid;
+    gap: 2.25rem;
+  }
+
+  .reasons__quote {
+    position: relative;
+    overflow: hidden;
+    border-top: 3px solid var(--c-accent);
+    border-radius: var(--shape-media);
+    margin-top: 1.75rem;
+    padding: clamp(1.25rem, 2.5vw, 1.75rem);
+    background: var(--c-deep);
+    color: var(--c-deep-ink);
+  }
+
+  .reasons__quote p {
+    max-width: 26ch;
+    font-family: var(--type-display);
+    font-size: clamp(1.25rem, 2vw, 1.65rem);
+    font-weight: 650;
+    letter-spacing: -0.025em;
+    line-height: 1.45;
+  }
+
+  .reasons__quote footer {
+    margin-top: 0.8rem;
+    color: var(--c-deep-muted);
+    font-size: 0.76rem;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  .reasons__list {
+    border-top: 1px solid var(--c-line);
+  }
+
+  .reason {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0.35rem 0.8rem;
+    border-bottom: 1px solid var(--c-line);
+    padding-block: 1.2rem;
+  }
+
+  .reason__index {
+    grid-row: 1 / span 2;
+    padding-top: 0.15rem;
+    color: var(--c-action);
+    font-family: var(--type-body);
+    font-size: 0.68rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.5;
+  }
+
+  .reason__copy {
+    min-width: 0;
+  }
+
+  .reason__title {
+    font-family: var(--type-display);
+    font-size: clamp(1.1rem, 1.5vw, 1.3rem);
+    font-weight: 650;
+    letter-spacing: -0.015em;
+    line-height: 1.4;
+  }
+
+  .reason__description {
+    max-width: 52ch;
+    margin-top: 0.3rem;
+    color: var(--c-muted);
+    font-size: 0.91rem;
+    line-height: 1.8;
+  }
+
+  .reason__meta {
+    grid-column: 2;
+    color: var(--c-muted);
+    font-size: 0.7rem;
+    font-weight: 650;
+    letter-spacing: 0.06em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+
+  :lang(fa) .reasons__quote p {
+    letter-spacing: 0;
+    line-height: 1.7;
+  }
+
+  :lang(fa) .reason__title {
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.6;
+  }
+
+  :lang(fa) .reason__description {
+    font-size: 0.95rem;
+    line-height: 1.95;
+  }
+
+  :lang(fa) .reason__meta {
+    font-size: 0.76rem;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  @media (min-width: 900px) {
+    .reasons__layout {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      column-gap: clamp(2.5rem, 6vw, 6rem);
+      align-items: start;
+    }
+
+    .reasons__quote {
+      max-width: 22rem;
+    }
+
+    .reason {
+      grid-template-columns: 2.2rem minmax(0, 1fr) auto;
+      gap: 0 1.1rem;
+      padding-block: 1.45rem;
+    }
+
+    .reason__index {
+      grid-row: auto;
+    }
+
+    .reason__meta {
+      grid-column: auto;
+      padding-top: 0.25rem;
+      text-align: end;
+    }
+  }
+</style>

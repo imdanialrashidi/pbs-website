@@ -1,0 +1,251 @@
+---
+import type { SiteConfig } from "../../config/types";
+import Section from "../ui/Section.astro";
+import SectionHeading from "../ui/SectionHeading.astro";
+import { pageLanguage } from "../../lib/language";
+import type { SectionSlot } from "../../lib/sections";
+
+interface Props {
+  site: SiteConfig;
+  section: SectionSlot;
+}
+
+const { site, section } = Astro.props;
+const patterns = site.patterns;
+const language = pageLanguage(site);
+const labels = patterns?.labels;
+---
+
+{
+  patterns && (
+    <Section id={section.id} labelledby={section.headingId} tone="tint" class="patterns">
+      <SectionHeading
+        eyebrow={patterns.eyebrow}
+        headline={patterns.headline}
+        intro={patterns.intro}
+        id={section.headingId}
+      />
+
+      {patterns.note && labels && (
+        <div class="patterns__note">
+          <span class="patterns__stamp">{labels.capability}</span>
+          <p>{patterns.note}</p>
+        </div>
+      )}
+
+      <ol class="patterns__list">
+        {patterns.items.map((item, index) => (
+          <li class="pattern">
+            <span class="pattern__index" aria-hidden="true">
+              {language.index(index + 1)}
+            </span>
+
+            <div class="pattern__problem">
+              <span class="pattern__label">{labels?.problem}</span>
+              <h3 class="pattern__title">{item.title}</h3>
+              <p class="pattern__description">{item.description}</p>
+            </div>
+
+            <svg
+              class="pattern__arrow"
+              viewBox="0 0 34 8"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.2"
+              aria-hidden="true"
+            >
+              <path d="M1 4h29" />
+              <path d="m26 1 4 3-4 3" />
+            </svg>
+
+            <div class="pattern__outcome">
+              <span class="pattern__label">{labels?.output}</span>
+              <p>{item.outcome}</p>
+              {item.meta && <span class="pattern__meta">{item.meta}</span>}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </Section>
+  )
+}
+
+<style>
+  .patterns__note {
+    display: grid;
+    gap: 0.55rem;
+    border-block: 1px solid var(--c-line);
+    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+    padding-block: 0.8rem;
+  }
+
+  .patterns__stamp {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    border: 1px solid color-mix(in srgb, var(--c-action) 24%, var(--c-line));
+    border-radius: 4px;
+    padding: 0.2rem 0.5rem;
+    color: var(--c-action);
+    font-size: 0.64rem;
+    font-weight: 700;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+
+  .patterns__note p {
+    max-width: 72ch;
+    color: var(--c-muted);
+    font-size: 0.86rem;
+    line-height: 1.75;
+  }
+
+  .patterns__list {
+    border-top: 1px solid var(--c-line);
+  }
+
+  .pattern {
+    display: grid;
+    grid-template-columns: 1.8rem minmax(0, 1fr);
+    gap: 0.4rem 0.9rem;
+    border-bottom: 1px solid var(--c-line);
+    padding-block: 1.35rem;
+  }
+
+  .pattern__index {
+    grid-row: 1 / span 2;
+    padding-top: 0.2rem;
+    color: var(--c-action);
+    font-family: var(--type-body);
+    font-size: 0.68rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.5;
+  }
+
+  .pattern__problem,
+  .pattern__outcome {
+    min-width: 0;
+  }
+
+  .pattern__label {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--c-muted);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+
+  .pattern__title {
+    font-family: var(--type-display);
+    font-size: clamp(1.15rem, 1.5vw, 1.4rem);
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    line-height: 1.4;
+  }
+
+  .pattern__description {
+    max-width: 52ch;
+    margin-top: 0.4rem;
+    color: var(--c-muted);
+    font-size: 0.9rem;
+    line-height: 1.8;
+  }
+
+  .pattern__arrow {
+    display: none;
+    width: 2rem;
+    height: 0.5rem;
+    color: var(--c-muted);
+    align-self: start;
+    margin-top: 2.9rem;
+  }
+
+  [dir="rtl"] .pattern__arrow {
+    scale: -1 1;
+  }
+
+  .pattern__outcome {
+    border-top: 1px solid var(--c-line);
+    margin-top: 0.6rem;
+    padding-top: 0.8rem;
+  }
+
+  .pattern__outcome p {
+    max-width: 46ch;
+    color: var(--c-ink);
+    font-size: 0.94rem;
+    line-height: 1.8;
+  }
+
+  .pattern__meta {
+    display: inline-block;
+    margin-top: 0.55rem;
+    color: var(--c-muted);
+    font-size: 0.74rem;
+    font-weight: 650;
+    line-height: 1.5;
+  }
+
+  :lang(fa) .patterns__stamp {
+    font-size: 0.74rem;
+  }
+
+  :lang(fa) .pattern__label {
+    font-size: 0.76rem;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  :lang(fa) .pattern__title {
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.6;
+  }
+
+  :lang(fa) .pattern__description {
+    font-size: 0.94rem;
+  }
+
+  :lang(fa) .pattern__outcome p {
+    font-size: 0.96rem;
+  }
+
+  :lang(fa) .pattern__description,
+  :lang(fa) .pattern__outcome p,
+  :lang(fa) .patterns__note p {
+    line-height: 1.95;
+  }
+
+  @media (min-width: 760px) {
+    .patterns__note {
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .pattern {
+      grid-template-columns: 2rem minmax(0, 1.08fr) 2rem minmax(0, 0.92fr);
+      gap: 0 1rem;
+      align-items: start;
+      padding-block: 1.65rem;
+    }
+
+    .pattern__index {
+      grid-row: auto;
+    }
+
+    .pattern__arrow {
+      display: block;
+    }
+
+    .pattern__outcome {
+      border-top: 0;
+      margin-top: 0;
+      padding-top: 0;
+    }
+  }
+</style>

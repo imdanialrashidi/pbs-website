@@ -1,0 +1,207 @@
+---
+import type { SiteConfig } from "../../config/types";
+import Eyebrow from "../ui/Eyebrow.astro";
+import HeadlineText from "../ui/Headline.astro";
+import type { SectionSlot } from "../../lib/sections";
+
+interface Props {
+  site: SiteConfig;
+  section: SectionSlot;
+}
+
+const { site, section } = Astro.props;
+const definition = site.definition;
+---
+
+<section
+  id={section.id}
+  class="section section--tint definition"
+  aria-labelledby={section.headingId}
+>
+  <div class="shell">
+    <div class="definition__head">
+      <div class="definition__identity">
+        <Eyebrow text={definition.eyebrow} />
+        <h2 id={section.headingId} class="display display--md definition__title">
+          <HeadlineText headline={definition.headline} />
+        </h2>
+      </div>
+      <p class="definition__intro">{definition.intro}</p>
+    </div>
+
+    <ol class="definition__words">
+      {
+        definition.words.map((word) => (
+          <li class="definition__word">
+            <span class="definition__letter" aria-hidden="true">{word.initial}</span>
+            <div class="definition__copy">
+              <p class="definition__english" dir="ltr" lang="en">{word.english}</p>
+              <h3 class="definition__label">{word.label}</h3>
+              <p class="definition__description">{word.description}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+
+    <p class="definition__closing">{definition.closing}</p>
+  </div>
+</section>
+
+<style>
+  .definition {
+    padding-block: clamp(2.5rem, 4.5vw, 4rem);
+  }
+
+  .definition__head {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .definition__title {
+    max-width: 26ch;
+  }
+
+  .definition__title em {
+    font-family: var(--type-display);
+    font-size: 0.82em;
+    letter-spacing: -0.02em;
+    unicode-bidi: isolate;
+  }
+
+  .definition__intro {
+    max-width: 46ch;
+    color: var(--c-muted);
+    font-size: 0.96rem;
+    line-height: 1.85;
+  }
+
+  .definition__words {
+    display: grid;
+    border-top: 1px solid var(--c-line);
+    margin-top: clamp(1.5rem, 3vw, 2.25rem);
+  }
+
+  .definition__word {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0.8rem;
+    border-bottom: 1px solid var(--c-line);
+    padding-block: 0.9rem;
+  }
+
+  .definition__letter {
+    display: inline-flex;
+    width: 2rem;
+    height: 2rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid color-mix(in srgb, var(--c-action) 22%, var(--c-line));
+    border-radius: 5px;
+    color: var(--c-action);
+    font-family: var(--type-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .definition__copy {
+    min-width: 0;
+  }
+
+  .definition__english {
+    color: var(--c-muted);
+    font-family: var(--type-body);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+
+  .definition__label {
+    margin-top: 0.1rem;
+    font-family: var(--type-display);
+    font-size: 1rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    line-height: 1.45;
+  }
+
+  .definition__description {
+    margin-top: 0.2rem;
+    color: var(--c-muted);
+    font-size: 0.86rem;
+    line-height: 1.75;
+  }
+
+  .definition__closing {
+    max-width: 72ch;
+    border-top: 1px solid var(--c-line);
+    margin-top: 0.2rem;
+    padding-top: 0.8rem;
+    color: var(--c-muted);
+    font-size: 0.9rem;
+    line-height: 1.85;
+  }
+
+  :lang(fa) .definition__title em {
+    letter-spacing: 0;
+    line-height: 1.35;
+  }
+
+  :lang(fa) .definition__english {
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    text-align: end;
+    text-transform: none;
+  }
+
+  :lang(fa) .definition__label {
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.6;
+  }
+
+  :lang(fa) .definition__description {
+    font-size: 0.9rem;
+  }
+
+  :lang(fa) .definition__description,
+  :lang(fa) .definition__intro,
+  :lang(fa) .definition__closing {
+    line-height: 1.95;
+  }
+
+  @media (min-width: 768px) {
+    .definition__head {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      column-gap: clamp(2rem, 5vw, 5rem);
+      align-items: end;
+    }
+
+    .definition__words {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .definition__word {
+      display: block;
+      border-bottom: 0;
+      border-inline-start: 1px solid var(--c-line);
+      padding: 1.1rem 1.25rem 1.2rem;
+    }
+
+    .definition__word:first-child {
+      border-inline-start: 0;
+      padding-inline-start: 0;
+    }
+
+    .definition__word:last-child {
+      padding-inline-end: 0;
+    }
+
+    .definition__letter {
+      margin-bottom: 0.65rem;
+    }
+  }
+</style>

@@ -1,9 +1,9 @@
 {
-  "name": "client-demo-factory",
+  "name": "pbs-website",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "A Persian-first, RTL-ready Astro starter for fast, mobile-first client website demos on GitHub Pages.",
+  "description": "Bilingual Persian-first corporate website for PBS | Practical Business Solutions.",
   "engines": {
     "node": ">=22.23.4"
   },
@@ -11,17 +11,13 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "build:alt": "CLIENT=atelier-sora astro build",
     "preview": "astro preview",
     "check": "astro check",
     "verify": "npm run check && npm run build"
   },
   "dependencies": {
     "@lucide/astro": "1.65.0",
-    "@tailwindcss/vite": "4.3.3",
-    "astro": "7.4.4",
-    "sharp": "0.35.5",
-    "tailwindcss": "4.3.3"
+    "astro": "7.4.4"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.12",

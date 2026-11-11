@@ -1,26 +1,31 @@
 ---
 import "../styles/global.css";
-import type { SiteConfig } from "../config/types";
-import { site as activeSite } from "../config/site";
+import type { PageKey, SiteConfig } from "../config/types";
 import Footer from "../components/layout/Footer.astro";
 import Header from "../components/layout/Header.astro";
+import JsonLd from "../components/seo/JsonLd.astro";
 import { themeFor } from "../lib/theme";
-import { socialCard } from "../lib/images";
-import { pageLanguage } from "../lib/language";
+import { ogLocaleFor, pageLanguage } from "../lib/language";
+import { pageAlternates } from "../lib/routes";
+import { buildStructuredData } from "../lib/schema";
 import { href, pagePath } from "../lib/url";
 
 interface Props {
+  site: SiteConfig;
+  pageKey?: PageKey;
   title?: string;
   description?: string;
   noindex?: boolean;
-  site?: SiteConfig;
+  extraSchema?: unknown[];
 }
 
 const {
-  title = activeSite.meta.title,
-  description = activeSite.meta.description,
+  site,
+  pageKey = "home",
+  title = site.meta.title,
+  description = site.meta.description,
   noindex = false,
-  site = activeSite,
+  extraSchema = [],
 } = Astro.props;
 
 const siteUrl = Astro.site ?? new URL(Astro.url.origin);
@@ -28,14 +33,31 @@ const canonical = new URL(pagePath(Astro.url.pathname), siteUrl).href;
 const { css: themeStyles, preloads } = themeFor(site.theme);
 const language = pageLanguage(site);
 
-let ogImageUrl: string | undefined;
-let ogImageAlt: string | undefined;
+const alternates = pageAlternates(site, pageKey).map((link) => ({
+  ...link,
+  absolute: new URL(href(link.path), siteUrl).href,
+}));
+const xDefault = alternates.find((link) => link.xDefault);
+const otherLocales = alternates.filter((link) => !link.current);
 
-if (!noindex && site.hero.image.src) {
-  const socialPath = pagePath(await socialCard(site.hero.image.src));
-  ogImageUrl = new URL(socialPath, siteUrl).href;
-  ogImageAlt = site.hero.image.alt;
-}
+const social = site.meta.socialImage;
+const ogImageUrl = social ? new URL(href(social.src), siteUrl).href : undefined;
+const ogImageAlt = social?.alt;
+const ogImageWidth = social?.width ?? 1200;
+const ogImageHeight = social?.height ?? 630;
+
+const structuredData = noindex
+  ? undefined
+  : buildStructuredData({
+      site,
+      siteUrl,
+      canonical,
+      title,
+      description,
+      pageKey,
+      imageUrl: ogImageUrl,
+      extra: extraSchema,
+    });
 ---
 
 <!doctype html>
@@ -45,15 +67,27 @@ if (!noindex && site.hero.image.src) {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="theme-color" content={site.theme.colors.canvas} />
-    <meta name="color-scheme" content={site.theme.mode} />
-    <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow"} />
+    <meta name="color-scheme" content="light" />
+    <meta name="robots" content={noindex ? "noindex, follow" : "index, follow, max-image-preview:large"} />
     {site.meta.keywords && <meta name="keywords" content={site.meta.keywords.join(", ")} />}
-    <link rel="canonical" href={canonical} />
+    {!noindex && <link rel="canonical" href={canonical} />}
     <link rel="icon" href={href("/favicon.svg")} type="image/svg+xml" />
+    <link rel="alternate icon" href={href("/favicon-32.png")} sizes="32x32" type="image/png" />
     <link rel="apple-touch-icon" href={href("/apple-touch-icon.png")} />
+    <link rel="manifest" href={href("/site.webmanifest")} />
+    <link rel="sitemap" type="application/xml" href={href("/sitemap.xml")} />
+
+    {
+      !noindex &&
+        alternates.map((link) => (
+          <link rel="alternate" hreflang={link.locale} href={link.absolute} />
+        ))
+    }
+    {!noindex && xDefault && <link rel="alternate" hreflang="x-default" href={xDefault.absolute} />}
 
     {
       preloads.map((src) => (
@@ -69,9 +103,12 @@ if (!noindex && site.hero.image.src) {
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={site.brand.name} />
     <meta property="og:locale" content={language.ogLocale} />
+    {otherLocales.map((link) => (
+      <meta property="og:locale:alternate" content={ogLocaleFor(link.locale)} />
+    ))}
     {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
-    {ogImageUrl && <meta property="og:image:width" content="1200" />}
-    {ogImageUrl && <meta property="og:image:height" content="630" />}
+    {ogImageUrl && <meta property="og:image:width" content={String(ogImageWidth)} />}
+    {ogImageUrl && <meta property="og:image:height" content={String(ogImageHeight)} />}
     {ogImageAlt && <meta property="og:image:alt" content={ogImageAlt} />}
 
     <meta name="twitter:card" content="summary_large_image" />
@@ -79,13 +116,15 @@ if (!noindex && site.hero.image.src) {
     <meta name="twitter:description" content={description} />
     {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
     {ogImageAlt && <meta name="twitter:image:alt" content={ogImageAlt} />}
+
+    {structuredData && <JsonLd data={structuredData} />}
   </head>
 
-  <body>
-    <Header site={site} />
+  <body data-page={pageKey}>
+    <Header site={site} pageKey={pageKey} />
     <main id="main" tabindex="-1">
       <slot />
     </main>
-    <Footer site={site} />
+    <Footer site={site} pageKey={pageKey} />
   </body>
 </html>

@@ -1,32 +1,20 @@
-import type { SiteConfig } from "./types";
-import { atelierSora } from "./clients/atelier-sora";
-import { casaMarea } from "./clients/casa-marea";
-import { naranjHouse } from "./clients/naranj-house";
+import type { SiteConfig, WorkPageContent } from "./types";
+import { pbsFa } from "./pbs/fa";
+import { pbsEn } from "./pbs/en";
+import { pbsWork } from "./pbs/work";
 
 /**
- * The active demo is selected at build time:
+ * The two public PBS locales, rendered in the same static build.
  *
- *   npm run dev                         # Persian, RTL default
- *   CLIENT=casa-marea npm run dev       # English, LTR
- *   CLIENT=atelier-sora npm run dev
- *   npm run build:alt
- *
- * Add a config under clients/, register it here, and it is available
- * through the CLIENT switch. Shared components never import a client.
+ * `fa` is the reference page at the deployment root; `en` lives at `/en/`.
+ * The work page is a second route pair with its own content.
  */
-const clients = {
-  "naranj-house": naranjHouse,
-  "casa-marea": casaMarea,
-  "atelier-sora": atelierSora,
-} satisfies Record<string, SiteConfig>;
+export const pbsSites = {
+  fa: pbsFa,
+  en: pbsEn,
+} satisfies Record<"fa" | "en", SiteConfig>;
 
-const requested = import.meta.env.CLIENT || "naranj-house";
+export const pbsWorkPages = pbsWork satisfies Record<"fa" | "en", WorkPageContent>;
 
-if (!(requested in clients)) {
-  throw new Error(
-    `Unknown CLIENT "${requested}". Available clients: ${Object.keys(clients).join(", ")}.`,
-  );
-}
-
-export const site = clients[requested as keyof typeof clients];
-export { clients };
+/** Persian is the site default, also used by the static 404 page. */
+export const site = pbsSites.fa;

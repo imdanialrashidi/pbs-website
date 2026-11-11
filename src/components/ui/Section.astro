@@ -2,14 +2,20 @@
 interface Props {
   id: string;
   labelledby?: string;
-  tone?: "default" | "surface" | "tint";
+  tone?: "default" | "surface" | "tint" | "deep";
   class?: string;
 }
 
 const { id, labelledby, tone = "default", class: className } = Astro.props;
 
 const toneClass =
-  tone === "surface" ? "section--surface" : tone === "tint" ? "section--tint" : "";
+  tone === "surface"
+    ? "section--surface"
+    : tone === "tint"
+      ? "section--tint"
+      : tone === "deep"
+        ? "section--deep"
+        : "";
 ---
 
 <section

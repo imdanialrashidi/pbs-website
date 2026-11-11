@@ -4,8 +4,8 @@ import Eyebrow from "./Eyebrow.astro";
 import HeadlineText from "./Headline.astro";
 
 /**
- * The one section heading. Rank, measure, spacing and sticky behaviour are
- * decided here by `layout`, so a caller supplies content and a heading id only.
+ * The one section heading. Composition and sticky behaviour are decided here
+ * by `layout`, so a caller supplies content and a heading id only.
  *
  * - `split`: title column beside the intro; use over a full-width body.
  * - `aside`: stacked heading used as a column beside a list; can stick.
@@ -23,8 +23,6 @@ interface Props {
 }
 
 const { eyebrow, headline, intro, id, layout = "split", sticky = false } = Astro.props;
-
-const rank = layout === "aside" ? "display--lg" : "display--md";
 ---
 
 <header
@@ -36,7 +34,7 @@ const rank = layout === "aside" ? "display--lg" : "display--md";
 >
   <div class="section-heading__main">
     <Eyebrow text={eyebrow} />
-    <h2 id={id} class:list={["display", rank, "section-heading__title"]}>
+    <h2 id={id} class="display display--md section-heading__title">
       <HeadlineText headline={headline} />
     </h2>
   </div>

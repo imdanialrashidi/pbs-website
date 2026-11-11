@@ -1,6 +1,9 @@
 ---
-import type { SiteConfig } from "../../config/types";
-import Button from "../ui/Button.astro";
+import type {
+  ContactChannelId,
+  IconName,
+  SiteConfig,
+} from "../../config/types";
 import Icon from "../ui/Icon.astro";
 import Section from "../ui/Section.astro";
 import SectionHeading from "../ui/SectionHeading.astro";
@@ -16,11 +19,26 @@ const { site, section } = Astro.props;
 const contact = site.contact;
 const language = pageLanguage(site);
 const ui = language.t;
+const channels = contact?.channels ?? [];
+const contactLinks = site.contactLinks ?? {};
+const hasAvailableChannel = channels.some((channel) => contactLinks[channel.id]?.href);
+
+const channelIcons: Record<ContactChannelId, IconName> = {
+  whatsapp: "message-circle",
+  bale: "messages-square",
+  telegram: "send",
+  phone: "phone",
+};
 ---
 
 {
   contact && (
-    <Section id={section.id} labelledby={section.headingId} tone="surface" class="contact">
+    <Section
+      id={section.id}
+      labelledby={section.headingId}
+      tone="deep"
+      class="contact"
+    >
       <div class="contact__layout">
         <div class="contact__intro">
           <SectionHeading
@@ -31,185 +49,348 @@ const ui = language.t;
             layout="aside"
           />
 
-          <div class="contact__details">
-            <div class="contact-item">
-              <span class="contact-item__icon" aria-hidden="true">
-                <Icon name="mail" size={17} />
-              </span>
-              <div>
-                <p class="contact-item__label">{ui.contactDetails.email}</p>
-                <a
-                  class="contact-item__value contact__email"
-                  href={`mailto:${contact.details.email}`}
-                >
-                  <bdi dir="ltr">{contact.details.email}</bdi>
-                </a>
-              </div>
-            </div>
-
-            <div class="contact-item">
-              <span class="contact-item__icon" aria-hidden="true">
-                <Icon name="map-pin" size={17} />
-              </span>
-              <div>
-                <p class="contact-item__label">{ui.contactDetails.address}</p>
-                <p class="contact-item__value">{contact.details.address}</p>
-              </div>
-            </div>
-
-            <div class="contact-item">
-              <span class="contact-item__icon" aria-hidden="true">
-                <Icon name="clock" size={17} />
-              </span>
-              <div>
-                <p class="contact-item__label">{ui.contactDetails.hours}</p>
-                <p class="contact-item__value">{contact.details.hours}</p>
-              </div>
-            </div>
-
-            {contact.details.phone && (
-              <div class="contact-item">
-                <span class="contact-item__icon" aria-hidden="true">
-                  <Icon name="phone" size={17} />
-                </span>
-                <div>
-                  <p class="contact-item__label">{ui.contactDetails.phone}</p>
-                  <a
-                    class="contact-item__value"
-                    href={`tel:${contact.details.phone.replace(/\s/g, "")}`}
-                  >
-                    <bdi dir="ltr">{contact.details.phone}</bdi>
-                  </a>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div class="contact__form-wrap">
-          <h3 class="display display--sm">{contact.form.title}</h3>
-          <p class="demo-note" id="form-note">{contact.form.note}</p>
-
-          <form
-            class="contact__form"
-            data-demo-form
-            data-success={contact.form.success}
-            data-success-fallback={ui.form.successFallback}
-            aria-describedby="form-note"
-          >
-            <div class="form-grid">
-              <div class="field">
-                <label class="field__label" for="contact-name">{ui.form.name}</label>
-                <input
-                  class="field__input"
-                  id="contact-name"
-                  name="name"
-                  type="text"
-                  autocomplete="name"
-                  maxlength="80"
-                  required
-                />
-              </div>
-
-              <div class="field">
-                <label class="field__label" for="contact-email">{ui.form.email}</label>
-                <input
-                  class="field__input"
-                  id="contact-email"
-                  name="email"
-                  type="email"
-                  autocomplete="email"
-                  inputmode="email"
-                  autocapitalize="off"
-                  spellcheck="false"
-                  dir="ltr"
-                  maxlength="120"
-                  required
-                />
-              </div>
-
-              {contact.form.kind === "booking" ? (
-                <>
-                  <div class="field">
-                    <label class="field__label" for="contact-arrival">{ui.form.arrival}</label>
-                    <input
-                      class="field__input"
-                      id="contact-arrival"
-                      name="arrival"
-                      type="date"
-                      lang={language.lang}
-                    />
-                  </div>
-                  <div class="field">
-                    <label class="field__label" for="contact-departure">{ui.form.departure}</label>
-                    <input
-                      class="field__input"
-                      id="contact-departure"
-                      name="departure"
-                      type="date"
-                      lang={language.lang}
-                    />
-                  </div>
-                  <div class="field field--full">
-                    <label class="field__label" for="contact-guests">{ui.form.guests}</label>
-                    <div class="field__select-wrap">
-                      <select class="field__select" id="contact-guests" name="guests">
-                        {ui.form.guestOptions.map((option) => (
-                          <option value={option.value} selected={option.value === "2"}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                      <span class="field__select-icon" aria-hidden="true">
-                        <Icon name="chevron-down" size={15} />
-                      </span>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div class="field field--full">
-                  <label class="field__label" for="contact-project">{ui.form.projectType}</label>
-                  <div class="field__select-wrap">
-                    <select class="field__select" id="contact-project" name="project-type">
-                      {(contact.form.projectTypes ?? [ui.form.projectTypeFallback]).map((type) => (
-                        <option value={type}>{type}</option>
-                      ))}
-                    </select>
-                    <span class="field__select-icon" aria-hidden="true">
-                      <Icon name="chevron-down" size={15} />
+          {contact.prep && (
+            <div class="contact__prep">
+              <h3 class="contact__prep-title">{contact.prep.title}</h3>
+              <ol class="contact__prep-list">
+                {contact.prep.items.map((item, index) => (
+                  <li>
+                    <span class="contact__prep-index" aria-hidden="true">
+                      {language.index(index + 1)}
                     </span>
-                  </div>
-                </div>
-              )}
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
 
-              <div class="field field--full">
-                <label class="field__label" for="contact-message">{ui.form.message}</label>
-                <textarea
-                  class="field__textarea"
-                  id="contact-message"
-                  name="message"
-                  maxlength="1200"
-                  required
-                  placeholder={ui.form.messagePlaceholder}
-                ></textarea>
+          {!hasAvailableChannel && channels.length > 0 && (
+            <p class="contact__unavailable">
+              <span class="contact__unavailable-mark" aria-hidden="true"></span>
+              {ui.contactUnavailable}
+            </p>
+          )}
+
+          {hasAvailableChannel && (
+            <div class="contact__status">
+              {contact.availabilityNote && <p>{contact.availabilityNote}</p>}
+              {contact.note && <p class="contact__status-note">{contact.note}</p>}
+            </div>
+          )}
+        </div>
+
+        {
+          channels.length > 0 && (
+            <div class="contact__channels">
+              <div class="channels">
+                {channels.map((channel) => {
+                  const resolved = contactLinks[channel.id];
+                  const channelHref = resolved?.href;
+
+                  if (!channelHref) {
+                    return (
+                      <div class="channel channel--pending">
+                        <span class="channel__icon" aria-hidden="true">
+                          <Icon name={channelIcons[channel.id]} size={18} />
+                        </span>
+                        <span class="channel__body">
+                          <span class="channel__label">{channel.label}</span>
+                          <span class="channel__description">{channel.description}</span>
+                          <span class="channel__status">
+                            {channel.pendingLabel ?? ui.contactPending}
+                          </span>
+                        </span>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <a
+                      class="channel channel--ready"
+                      href={channelHref}
+                      target={resolved.external ? "_blank" : undefined}
+                      rel={resolved.external ? "noopener noreferrer" : undefined}
+                    >
+                      <span class="channel__icon" aria-hidden="true">
+                        <Icon name={channelIcons[channel.id]} size={18} />
+                      </span>
+                      <span class="channel__body">
+                        <span class="channel__label">{channel.label}</span>
+                        <span class="channel__description">{channel.description}</span>
+                        {resolved.display && (
+                          <bdi class="channel__value" dir="ltr">{resolved.display}</bdi>
+                        )}
+                        <span class="channel__cta">{ui.openChannel}</span>
+                      </span>
+                      <span class="channel__arrow" aria-hidden="true">
+                        <Icon name="arrow-up-right" size={15} />
+                      </span>
+                      {resolved.external && <span class="sr-only">{ui.opensInNewTab}</span>}
+                    </a>
+                  );
+                })}
               </div>
             </div>
-
-            <div class="form-actions">
-              <Button label={contact.form.submitLabel} type="submit" variant="accent" />
-              <span class="form-hint">{ui.form.submitHint}</span>
-            </div>
-
-            <p class="form-status" role="status" aria-live="polite" data-form-status></p>
-          </form>
-        </div>
+          )
+        }
       </div>
     </Section>
   )
 }
 
-<script>
-  import { initDemoForm } from "../../lib/client/demo-form";
+<style>
+  .contact {
+    border-top: 2px solid var(--c-accent);
+  }
 
-  initDemoForm();
-</script>
+  .contact__layout {
+    display: grid;
+    gap: clamp(2.25rem, 5vw, 4.5rem);
+  }
+
+  .contact__intro {
+    min-width: 0;
+  }
+
+  .contact__prep {
+    border-top: 1px solid var(--c-line);
+    margin-top: 1.75rem;
+    padding-top: 0.9rem;
+  }
+
+  .contact__prep-title {
+    color: var(--c-accent);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+
+  .contact__prep-list {
+    display: grid;
+    margin-top: 0.45rem;
+  }
+
+  .contact__prep-list li {
+    display: grid;
+    grid-template-columns: 1.8rem minmax(0, 1fr);
+    gap: 0.6rem;
+    border-top: 1px solid var(--c-line);
+    padding-block: 0.6rem;
+    font-size: 0.94rem;
+    line-height: 1.7;
+  }
+
+  .contact__prep-list li:first-child {
+    border-top: 0;
+  }
+
+  .contact__prep-index {
+    color: var(--c-accent);
+    font-family: var(--type-body);
+    font-size: 0.68rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.8;
+  }
+
+  .contact__unavailable {
+    display: grid;
+    grid-template-columns: 0.45rem minmax(0, 1fr);
+    gap: 0.65rem;
+    border-top: 1px solid var(--c-line);
+    margin-top: 1.35rem;
+    padding-top: 0.9rem;
+    color: var(--c-deep-muted);
+    font-size: 0.9rem;
+    line-height: 1.85;
+  }
+
+  .contact__unavailable-mark {
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-top: 0.62em;
+    background: var(--c-accent);
+  }
+
+  .contact__status {
+    display: grid;
+    gap: 0.3rem;
+    border-top: 1px solid var(--c-line);
+    margin-top: 1.35rem;
+    padding-top: 0.9rem;
+    color: var(--c-deep-muted);
+    font-size: 0.88rem;
+    line-height: 1.75;
+  }
+
+  .contact__status-note {
+    font-size: 0.82rem;
+  }
+
+  .contact__channels {
+    min-width: 0;
+  }
+
+  .channels {
+    border-top: 1px solid var(--c-line);
+  }
+
+  .channel {
+    display: grid;
+    grid-template-columns: 2.6rem minmax(0, 1fr) auto;
+    gap: 0.9rem;
+    align-items: start;
+    border-bottom: 1px solid var(--c-line);
+    padding-block: 1rem;
+  }
+
+  .channel--ready {
+    transition: background-color 160ms ease;
+  }
+
+  .channel--ready:hover {
+    background: rgb(255 255 255 / 0.05);
+  }
+
+  .channel__icon {
+    display: inline-flex;
+    width: 2.6rem;
+    height: 2.6rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--c-line);
+    border-radius: 7px;
+    color: var(--c-accent);
+    transition:
+      border-color 160ms ease,
+      background-color 160ms ease,
+      color 160ms ease;
+  }
+
+  .channel--ready:hover .channel__icon {
+    border-color: var(--c-accent);
+    background: var(--c-accent);
+    color: var(--c-accent-ink);
+  }
+
+  .channel--pending .channel__icon {
+    color: var(--c-deep-muted);
+  }
+
+  .channel__body {
+    display: grid;
+    gap: 0.1rem;
+    min-width: 0;
+  }
+
+  .channel__label {
+    font-family: var(--type-display);
+    font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+    font-weight: 650;
+    letter-spacing: -0.015em;
+    line-height: 1.4;
+  }
+
+  .channel__description {
+    color: var(--c-deep-muted);
+    font-size: 0.86rem;
+    line-height: 1.7;
+  }
+
+  .channel__value {
+    max-width: 100%;
+    margin-top: 0.2rem;
+    color: var(--c-accent);
+    font-size: 0.76rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  .channel__status {
+    display: inline-flex;
+    width: fit-content;
+    margin-top: 0.35rem;
+    border: 1px solid var(--c-line);
+    border-radius: 4px;
+    padding: 0.15rem 0.45rem;
+    color: var(--c-deep-muted);
+    font-size: 0.72rem;
+    font-weight: 650;
+    line-height: 1.5;
+  }
+
+  .channel__cta {
+    margin-top: 0.25rem;
+    color: var(--c-accent);
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .channel__arrow {
+    padding-top: 0.55rem;
+    color: var(--c-deep-muted);
+    transition:
+      color 160ms ease,
+      transform 160ms ease;
+  }
+
+  .channel--ready:hover .channel__arrow {
+    color: var(--c-accent);
+    transform: translate(var(--nudge-x), -1px);
+  }
+
+  .channel:focus-visible {
+    outline-offset: 4px;
+  }
+
+  :lang(fa) .contact__prep-title {
+    font-size: 0.78rem;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  :lang(fa) .channel__label {
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.6;
+  }
+
+  :lang(fa) .channel__description,
+  :lang(fa) .contact__unavailable,
+  :lang(fa) .contact__status {
+    line-height: 1.95;
+  }
+
+  :lang(fa) .channel__status {
+    font-size: 0.76rem;
+  }
+
+  :lang(fa) .channel__cta {
+    font-size: 0.82rem;
+  }
+
+  @media (min-width: 560px) {
+    .channel {
+      grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+      gap: 1.1rem;
+      padding-block: 1.2rem;
+    }
+
+    .channel__icon {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+  }
+
+  @media (min-width: 960px) {
+    .contact__layout {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      column-gap: clamp(3rem, 8vw, 7rem);
+      align-items: start;
+    }
+  }
+</style>

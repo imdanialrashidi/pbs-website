@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="ttl dsc">
+<title id="ttl">PBS — Practical Business Solutions</title>
+<desc id="dsc">PBS favicon: aqua spark on Deep Midnight rounded square.</desc>
+<defs>
+<linearGradient id="pbs-white" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox"><stop offset="0%" stop-color="#EEF2FA"/><stop offset="55%" stop-color="#F9FAFF"/><stop offset="100%" stop-color="#E9EEFA"/></linearGradient>
+<linearGradient id="pbs-aqua" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00EFD7"/><stop offset="100%" stop-color="#33D6E8"/></linearGradient>
+<linearGradient id="bg-deep" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#041633"/><stop offset="100%" stop-color="#062B73"/></linearGradient>
+<linearGradient id="bg-deep2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#041633"/><stop offset="100%" stop-color="#0B1730"/></linearGradient>
+<radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#33D6E8" stop-opacity="0.16"/><stop offset="100%" stop-color="#33D6E8" stop-opacity="0"/></radialGradient>
+<linearGradient id="aqua-bar" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#062B73"/><stop offset="55%" stop-color="#33D6E8"/><stop offset="100%" stop-color="#6EF2D6"/></linearGradient>
+
+</defs>
+<rect x="0" y="0" width="64" height="64" rx="14" fill="#041633"/>
+<g transform="translate(7.25,6.9) scale(0.75)"><g transform="translate(-680,0)" fill="url(#pbs-aqua)" fill-rule="evenodd">
+    <path id="aqua-spark" d="M 712.629 4.162 C 711.41 10.665 706.134 19.677 700.571 24.761 C 695.48 29.414 686.217 34 681.911 34 C 680.86 34 680 34.45 680 35 C 680 35.55 681.013 36 682.25 36.001 C 685.945 36.002 696.582 41.573 701.441 46.053 C 705.774 50.046 712.94 62.29 713.049 65.884 C 713.076 66.773 714.212 64.603 715.574 61.061 C 719.781 50.122 725.402 43.881 735.5 38.939 C 738.8 37.323 742.539 36.001 743.809 36.001 C 745.094 36 745.844 35.556 745.5 35 C 745.16 34.45 744.121 34 743.191 33.999 C 739.668 33.998 729.311 28.059 724.661 23.375 C 718.962 17.634 717.211 14.589 714.969 6.522 L 713.308 0.545 L 712.629 4.162 Z"/>
+  </g></g>
+</svg>

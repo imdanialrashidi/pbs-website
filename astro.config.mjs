@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import { defineConfig } from "astro/config";
-import tailwindcss from "@tailwindcss/vite";
 
 /**
  * Deployment is configured in one place: here.
@@ -45,14 +44,4 @@ export default defineConfig({
   output: "static",
   trailingSlash: "ignore",
   compressHTML: true,
-  image: {
-    // Layouts are owned by the Media component, not injected by Astro.
-    responsiveStyles: false,
-  },
-  vite: {
-    plugins: [tailwindcss()],
-    define: {
-      "import.meta.env.CLIENT": JSON.stringify(process.env.CLIENT || "naranj-house"),
-    },
-  },
 });

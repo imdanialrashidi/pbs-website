@@ -1,14 +1,14 @@
 /**
  * Locale-aware formatting, shared by the server and the browser.
  *
- * The lightbox runs in the browser and needs the same index digits as the
- * server-rendered menus, so the rule lives here and both import it.
+ * The same index digits are needed in server-rendered menus and in any future
+ * client interaction, so the rule lives in one shared module.
  */
 
 export interface LocaleFormatters {
   /** Number formatting in the page locale; Persian gets Persian digits. */
   number(value: number, options?: Intl.NumberFormatOptions): string;
-  /** A zero-padded menu, list or gallery index. */
+  /** A zero-padded menu or list index. */
   index(value: number): string;
   /** A copyright year in the locale's calendar. */
   year(date?: Date): string;

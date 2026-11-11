@@ -1,25 +1,12 @@
 ---
 import {
-  ArrowRight,
   ArrowUpRight,
-  Bike,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Clock,
-  Coffee,
-  Compass,
-  Expand,
-  Leaf,
-  Mail,
-  MapPin,
   Menu,
+  MessageCircle,
+  MessagesSquare,
   Phone,
   Plus,
-  Sun,
-  Users,
-  WavesHorizontal,
-  Wine,
+  Send,
   X,
 } from "@lucide/astro";
 import type { IconName } from "../../config/types";
@@ -36,35 +23,17 @@ const { name, size = 18, strokeWidth = 1.5, class: className, label } = Astro.pr
 
 const icons = {
   "arrow-up-right": ArrowUpRight,
-  "arrow-right": ArrowRight,
-  "chevron-left": ChevronLeft,
-  "chevron-right": ChevronRight,
-  "chevron-down": ChevronDown,
   phone: Phone,
   close: X,
   menu: Menu,
-  mail: Mail,
-  "map-pin": MapPin,
-  clock: Clock,
-  coffee: Coffee,
-  bike: Bike,
-  wine: Wine,
-  sun: Sun,
-  waves: WavesHorizontal,
-  compass: Compass,
-  leaf: Leaf,
-  users: Users,
-  expand: Expand,
   plus: Plus,
+  "message-circle": MessageCircle,
+  "messages-square": MessagesSquare,
+  send: Send,
 } as const;
 
 const IconComponent = icons[name];
-const directional = [
-  "arrow-up-right",
-  "arrow-right",
-  "chevron-left",
-  "chevron-right",
-].includes(name);
+const directional = name === "arrow-up-right";
 ---
 
 <IconComponent

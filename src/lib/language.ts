@@ -3,7 +3,7 @@ import { localeFormatters, type LocaleFormatters } from "./format";
 
 /**
  * The page language: interface copy for the locale, the direction and language
- * tag it implies, and locale-aware formatting — built once from the config.
+ * tag it implies, and locale-aware formatting, built once from the config.
  *
  * Callers stop threading `site.meta.locale`: they ask the page language for the
  * string, the digit, the date or the direction they need. Nested overrides are
@@ -20,6 +20,17 @@ export interface PageLanguage extends LocaleFormatters {
   readonly ogLocale: string;
 }
 
+/**
+ * Open Graph locale values: `language_TERRITORY` where possible. `en` alone is
+ * not a valid Open Graph locale, so the English page declares `en_US`.
+ */
+export function ogLocaleFor(locale: string): string {
+  const [language, region] = locale.replace(/_/g, "-").split("-");
+  const lang = language.toLowerCase();
+  if (!region) return lang === "en" ? "en_US" : lang;
+  return `${lang}_${region.toUpperCase()}`;
+}
+
 const fa: UiStrings = {
   skipToContent: "رفتن به محتوای اصلی",
   primaryNavigation: "ناوبری اصلی",
@@ -29,44 +40,16 @@ const fa: UiStrings = {
   mobileNavigation: "ناوبری موبایل",
   footerNavigation: "ناوبری پاورقی",
   explore: "بخش‌ها",
-  elsewhere: "لینک‌های دیگر",
-  findUs: "نشانی",
   backToTop: "بازگشت به بالا",
   contact: "تماس",
+  languageSwitch: "تغییر زبان",
+  work: "نمونه‌کارها",
+  opensInNewTab: "در پنجرهٔ جدید باز می‌شود",
+  openChannel: "شروع گفتگو",
+  contactPending: "جزئیات به‌زودی",
+  contactUnavailable:
+    "کانال‌های ارتباطی رسمی PBS در حال نهایی شدن است. تا آن زمان، هیچ شماره یا حسابی به‌عنوان تماس PBS تأیید نشده است.",
   staticNoTracking: "سایت ایستا، بدون ردیابی.",
-  imageUnavailable: "تصویر در دسترس نیست",
-  contactDetails: {
-    email: "ایمیل",
-    address: "نشانی",
-    hours: "ساعت پاسخگویی",
-    phone: "تلفن",
-  },
-  form: {
-    name: "نام",
-    email: "ایمیل",
-    arrival: "تاریخ ورود",
-    departure: "تاریخ خروج",
-    guests: "مهمان‌ها",
-    projectType: "نوع پروژه",
-    message: "پیام",
-    messagePlaceholder: "چند خط دربارهٔ سفر، تاریخ‌ها یا پروژه بنویسید.",
-    submitHint: "بدون حساب کاربری، بدون پرداخت، بدون ذخیرهٔ داده.",
-    successFallback: "این فرم نمایشی است و اطلاعاتی ارسال نمی‌شود.",
-    guestOptions: [
-      { value: "1", label: "یک مهمان" },
-      { value: "2", label: "دو مهمان" },
-      { value: "3", label: "سه مهمان" },
-      { value: "4", label: "چهار مهمان" },
-    ],
-    projectTypeFallback: "عمومی",
-  },
-  gallery: {
-    open: "باز کردن عکس:",
-    viewer: "نمایشگر عکس",
-    close: "بستن نمایشگر عکس",
-    previous: "عکس قبلی",
-    next: "عکس بعدی",
-  },
   notFound: {
     eyebrow: "صفحه پیدا نشد",
     title: "این صفحه پیدا نشد.",
@@ -84,48 +67,20 @@ const en: UiStrings = {
   mobileNavigation: "Mobile",
   footerNavigation: "Footer",
   explore: "Explore",
-  elsewhere: "Elsewhere",
-  findUs: "Find us",
   backToTop: "Back to top",
   contact: "Contact",
+  languageSwitch: "Language",
+  work: "Work",
+  opensInNewTab: "Opens in a new tab",
+  openChannel: "Start conversation",
+  contactPending: "Details coming soon",
+  contactUnavailable:
+    "PBS is finalizing its official contact channels. Until then, no number or account has been confirmed as a PBS contact.",
   staticNoTracking: "Static site, no tracking.",
-  imageUnavailable: "Image unavailable",
-  contactDetails: {
-    email: "Email",
-    address: "Where to find us",
-    hours: "When we answer",
-    phone: "Telephone",
-  },
-  form: {
-    name: "Name",
-    email: "Email",
-    arrival: "Arrival",
-    departure: "Departure",
-    guests: "Guests",
-    projectType: "Project type",
-    message: "Message",
-    messagePlaceholder: "A few lines about the trip, the dates, or the project.",
-    submitHint: "No account, no payment, no data stored.",
-    successFallback: "This demo form does not send data.",
-    guestOptions: [
-      { value: "1", label: "One guest" },
-      { value: "2", label: "Two guests" },
-      { value: "3", label: "Three guests" },
-      { value: "4", label: "Four guests" },
-    ],
-    projectTypeFallback: "General",
-  },
-  gallery: {
-    open: "Open photograph:",
-    viewer: "Photograph viewer",
-    close: "Close photograph viewer",
-    previous: "Previous photograph",
-    next: "Next photograph",
-  },
   notFound: {
     eyebrow: "Page not found",
-    title: "Lost at sea.",
-    body: "The address may have changed, or the page was never here. The house is still where you left it.",
+    title: "This page could not be found.",
+    body: "The address may have changed, or the page was never here. Return to the homepage and find your way from there.",
     back: "Back to {brand}",
   },
 };
@@ -188,7 +143,7 @@ export function pageLanguage(
     t: interpolate(copy, { brand: site.brand.name }),
     lang: locale,
     direction: site.meta.direction ?? directionFor(locale),
-    ogLocale: locale.replace("-", "_"),
+    ogLocale: ogLocaleFor(locale),
     ...localeFormatters(locale),
   };
 }

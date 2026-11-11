@@ -3,8 +3,8 @@ import type { Action, IconName } from "../../config/types";
 import Icon from "./Icon.astro";
 
 /**
- * A link when it has somewhere to go, a submit/button otherwise. Config
- * actions (`Action`) carry an href; a form CTA passes `type="submit"`.
+ * A link when it has somewhere to go, a submit/button otherwise. The arrow is
+ * opt-in: it appears only where a direction cue adds meaning.
  */
 interface Props {
   label: string;
@@ -18,8 +18,8 @@ interface Props {
 const {
   label,
   href,
-  variant = "solid",
-  icon = "arrow-up-right",
+  variant = "primary",
+  icon = "none",
   class: className,
   type = "button",
 } = Astro.props;
@@ -33,7 +33,7 @@ const classes = ["btn", `btn--${variant}`, className];
       href={href}
       class:list={classes}
       target={href.startsWith("http") ? "_blank" : undefined}
-      rel={href.startsWith("http") ? "noreferrer" : undefined}
+      rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
     >
       <span>{label}</span>
       {icon !== "none" && <Icon name={icon} size={15} class="btn__icon" />}

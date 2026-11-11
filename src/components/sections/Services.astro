@@ -1,6 +1,5 @@
 ---
 import type { SiteConfig } from "../../config/types";
-import Icon from "../ui/Icon.astro";
 import Section from "../ui/Section.astro";
 import SectionHeading from "../ui/SectionHeading.astro";
 import { pageLanguage } from "../../lib/language";
@@ -18,7 +17,7 @@ const language = pageLanguage(site);
 
 {
   services && (
-    <Section id={section.id} labelledby={section.headingId} tone="surface">
+    <Section id={section.id} labelledby={section.headingId} tone="surface" class="services">
       <SectionHeading
         eyebrow={services.eyebrow}
         headline={services.headline}
@@ -26,25 +25,187 @@ const language = pageLanguage(site);
         id={section.headingId}
       />
 
-      <div class="services__grid">
+      <ol class="services__list">
         {services.items.map((service, index) => (
-          <article class="service">
-            <div class="service__top">
-              <span class="service__icon" aria-hidden="true">
-                <Icon name={service.icon} size={17} />
-              </span>
+          <li class="service">
+            <div class="service__intro">
               <span class="service__index" aria-hidden="true">
                 {language.index(index + 1)}
               </span>
+              <h3 class="service__title">{service.title}</h3>
+              <p class="service__problem">
+                <span class="service__label">{services.labels.problem}</span>
+                {service.problem}
+              </p>
             </div>
-            <h3 class="service__title">{service.title}</h3>
-            <p class="service__description">{service.description}</p>
-            {service.meta && <p class="service__meta">{service.meta}</p>}
-          </article>
+
+            <div class="service__details">
+              <p class="service__description">{service.description}</p>
+
+              <div class="service__deliverables-block">
+                <span class="service__label">{services.labels.deliverables}</span>
+                <ul class="service__deliverables">
+                  {service.deliverables.map((item) => <li>{item}</li>)}
+                </ul>
+              </div>
+
+              <p class="service__boundary">
+                <span class="service__label">{services.labels.boundary}</span>
+                {service.boundary}
+              </p>
+            </div>
+          </li>
         ))}
-      </div>
+      </ol>
 
       {services.note && <p class="section-note">{services.note}</p>}
     </Section>
   )
 }
+
+<style>
+  .services__list {
+    border-top: 1px solid var(--c-line);
+  }
+
+  .service {
+    display: grid;
+    gap: 1.1rem;
+    border-bottom: 1px solid var(--c-line);
+    padding-block: 1.6rem;
+  }
+
+  .service__intro {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0.35rem 0.8rem;
+    min-width: 0;
+  }
+
+  .service__index {
+    grid-row: 1 / span 2;
+    padding-top: 0.2rem;
+    color: var(--c-action);
+    font-family: var(--type-body);
+    font-size: 0.68rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.5;
+  }
+
+  .service__title {
+    font-family: var(--type-display);
+    font-size: clamp(1.25rem, 1.6vw, 1.6rem);
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+  }
+
+  .service__problem {
+    max-width: 50ch;
+    color: var(--c-muted);
+    font-size: 0.94rem;
+    line-height: 1.8;
+  }
+
+  .service__details {
+    display: grid;
+    gap: 0.85rem;
+    min-width: 0;
+  }
+
+  .service__description {
+    max-width: 54ch;
+    color: var(--c-ink);
+    font-size: 0.97rem;
+    line-height: 1.8;
+  }
+
+  .service__label {
+    display: block;
+    margin-bottom: 0.28rem;
+    color: var(--c-muted);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+
+  .service__deliverables {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1.1rem;
+  }
+
+  .service__deliverables li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--c-ink);
+    font-size: 0.86rem;
+    line-height: 1.7;
+  }
+
+  .service__deliverables li::before {
+    width: 0.3rem;
+    height: 0.3rem;
+    background: var(--c-accent);
+    content: "";
+    flex: none;
+  }
+
+  .service__boundary {
+    border-top: 1px solid var(--c-line);
+    padding-top: 0.65rem;
+    color: var(--c-muted);
+    font-size: 0.84rem;
+    line-height: 1.75;
+  }
+
+  :lang(fa) .service__title {
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.6;
+  }
+
+  :lang(fa) .service__problem,
+  :lang(fa) .service__description,
+  :lang(fa) .service__boundary {
+    line-height: 1.95;
+  }
+
+  :lang(fa) .service__problem {
+    font-size: 0.95rem;
+  }
+
+  :lang(fa) .service__description {
+    font-size: 0.98rem;
+  }
+
+  :lang(fa) .service__boundary {
+    font-size: 0.88rem;
+  }
+
+  :lang(fa) .service__label {
+    font-size: 0.76rem;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  :lang(fa) .service__deliverables li {
+    font-size: 0.9rem;
+  }
+
+  @media (min-width: 900px) {
+    .service {
+      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+      gap: clamp(2rem, 6vw, 5rem);
+      padding-block: 2.1rem;
+    }
+
+    .service__details {
+      align-content: start;
+    }
+  }
+</style>
