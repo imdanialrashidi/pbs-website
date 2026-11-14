@@ -20,7 +20,7 @@ const contactLinks = site.contactLinks ?? {};
 const channels = site.contact?.channels ?? [];
 const availableChannels = channels.filter((channel) => contactLinks[channel.id]?.href);
 
-const backToTopHref = pageKey === "work" ? "#main" : localeHref(site, "#hero");
+const backToTopHref = pageKey === "home" ? localeHref(site, "#hero") : "#main";
 const contactHref = localeHref(site, "#contact");
 
 const exploreLinks = [

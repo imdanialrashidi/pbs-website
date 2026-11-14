@@ -3,6 +3,7 @@ import type { SiteConfig } from "../../config/types";
 import Section from "../ui/Section.astro";
 import SectionHeading from "../ui/SectionHeading.astro";
 import { pageLanguage } from "../../lib/language";
+import { localePageHref } from "../../lib/routes";
 import type { SectionSlot } from "../../lib/sections";
 
 interface Props {
@@ -32,7 +33,13 @@ const language = pageLanguage(site);
               <span class="service__index" aria-hidden="true">
                 {language.index(index + 1)}
               </span>
-              <h3 class="service__title">{service.title}</h3>
+              <h3 class="service__title">
+                {service.page ? (
+                  <a href={localePageHref(site, service.page)}>{service.title}</a>
+                ) : (
+                  service.title
+                )}
+              </h3>
               <p class="service__problem">
                 <span class="service__label">{services.labels.problem}</span>
                 {service.problem}
@@ -53,6 +60,12 @@ const language = pageLanguage(site);
                 <span class="service__label">{services.labels.boundary}</span>
                 {service.boundary}
               </p>
+
+              {service.page && (
+                <a class="service__more" href={localePageHref(site, service.page)}>
+                  {services.labels.viewService}
+                </a>
+              )}
             </div>
           </li>
         ))}
@@ -155,12 +168,59 @@ const language = pageLanguage(site);
     flex: none;
   }
 
+  .service__title a {
+    color: inherit;
+    text-decoration: none;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+
+  .service__title a:hover {
+    color: var(--c-action);
+    text-decoration: underline;
+  }
+
+  .service__title a:focus-visible {
+    outline: 2px solid var(--c-focus);
+    outline-offset: 3px;
+  }
+
   .service__boundary {
     border-top: 1px solid var(--c-line);
     padding-top: 0.65rem;
     color: var(--c-muted);
     font-size: 0.84rem;
     line-height: 1.75;
+  }
+
+  .service__more {
+    display: inline-flex;
+    width: fit-content;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--c-action);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .service__more::after {
+    width: 0.35rem;
+    height: 0.35rem;
+    border-top: 1.5px solid currentColor;
+    border-inline-end: 1.5px solid currentColor;
+    content: "";
+    transform: rotate(45deg);
+  }
+
+  .service__more:hover {
+    color: var(--c-ink);
+  }
+
+  .service__more:focus-visible {
+    outline: 2px solid var(--c-focus);
+    outline-offset: 3px;
   }
 
   :lang(fa) .service__title {

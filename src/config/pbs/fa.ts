@@ -12,6 +12,7 @@ import { localeLinks, pbsContactLinks, pbsThemeBase } from "./shared";
 export const pbsFa = {
   brand: {
     name: "PBS",
+    fullName: "PBS | Practical Business Solutions",
     mark: "tide",
     descriptor: "راهکارهای کاربردی کسب‌وکار",
     logo: {
@@ -28,22 +29,12 @@ export const pbsFa = {
     },
   },
   meta: {
-    title: "PBS | وب‌سایت، پنل اختصاصی و اتوماسیون کسب‌وکار",
+    title: "PBS | طراحی وب‌سایت، پنل اختصاصی و اتوماسیون",
     description:
-      "PBS تیمی مستقل برای طراحی و ساخت وب‌سایت، نرم‌افزار و پنل اختصاصی، و اتوماسیون است؛ با محدودهٔ روشن، تحویل مرحله‌ای و خروجی قابل استفاده.",
+      "PBS | Practical Business Solutions تیمی مستقل برای طراحی وب‌سایت، پنل اختصاصی و اتوماسیون است؛ با محدودهٔ روشن، تحویل مرحله‌ای و خروجی قابل استفاده.",
     locale: "fa-IR",
     direction: "rtl",
     path: "/",
-    keywords: [
-      "راهکارهای دیجیتال کسب‌وکار",
-      "طراحی سایت شرکتی",
-      "طراحی لندینگ",
-      "نرم‌افزار اختصاصی",
-      "داشبورد مدیریتی",
-      "اتوماسیون فرایند",
-      "PBS",
-      "Practical Business Solutions",
-    ],
     socialImage: {
       src: "/og-image.png",
       alt: "PBS، راهکارهای دیجیتال کاربردی برای کسب‌وکار",
@@ -65,6 +56,7 @@ export const pbsFa = {
     { label: "خدمات", section: "services" },
     { label: "روش کار", section: "features" },
     { label: "چرا PBS", section: "reasons" },
+    { label: "درباره", page: "about" },
     { label: "پرسش‌ها", section: "faq" },
   ],
   headerAction: {
@@ -76,8 +68,8 @@ export const pbsFa = {
     eyebrow: "تیم مستقل راهکارهای دیجیتال B2B",
     headline: {
       lead: "از مسئلهٔ کسب‌وکار تا ",
-      accent: "راهکار دیجیتالِ قابل اجرا",
-      tail: ".",
+      accent: "وب‌سایت، پنل و اتوماسیون",
+      tail: " قابل اجرا.",
     },
     intro:
       "وب‌سایت، پنل اختصاصی و اتوماسیون برای تیم‌هایی که به یک خروجی قابل استفاده و محدودهٔ روشن نیاز دارند.",
@@ -123,6 +115,7 @@ export const pbsFa = {
       problem: "مسئله",
       deliverables: "تحویل",
       boundary: "مرز دامنه",
+      viewService: "مشاهدهٔ جزئیات",
     },
     items: [
       {
@@ -138,6 +131,7 @@ export const pbsFa = {
           "راهنمای راه‌اندازی",
         ],
         boundary: "رتبه در گوگل، فروش یا نتیجهٔ کمپین تضمین نمی‌شود.",
+        page: "service-websites",
       },
       {
         title: "پنل و نرم‌افزار کسب‌وکار",
@@ -153,6 +147,7 @@ export const pbsFa = {
         ],
         boundary:
           "سیستم‌های حیاتی، مالی حساس یا پشتیبانی ۲۴/۷ جزو دامنهٔ پیش‌فرض نیست.",
+        page: "service-apps",
       },
       {
         title: "اتوماسیون و یکپارچه‌سازی",
@@ -167,6 +162,7 @@ export const pbsFa = {
           "مستند جریان",
         ],
         boundary: "پایداری و دسترسی سرویس‌های خارجی، پیش از اجرا بررسی می‌شود.",
+        page: "service-automation",
       },
       {
         title: "اجرای محدود رشد دیجیتال",
@@ -182,6 +178,7 @@ export const pbsFa = {
         ],
         boundary:
           "اجرای کمپین تمام‌عیار، تولید محتوای مستمر یا تعهد نتیجهٔ فروش در دامنه نیست.",
+        page: "service-growth",
       },
     ],
     note:
@@ -361,6 +358,7 @@ export const pbsFa = {
         question: "نمونه‌کار عمومی دارید؟",
         answer:
           "صفحهٔ نمونه‌کارها فقط پروژه‌هایی را منتشر می‌کند که اجازهٔ انتشار داشته باشند. تا آن زمان، دربارهٔ روش کار، محدوده و خروجی‌های ممکن صحبت می‌کنیم.",
+        link: { label: "دیدن صفحهٔ نمونه‌کارها", page: "work" },
       },
       {
         question: "هزینه چگونه مشخص می‌شود؟",

@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import type { PageKey } from "../config/types";
 import { pbsWorkPages } from "../config/site";
 import { pagePaths } from "../lib/routes";
 import { href } from "../lib/url";
@@ -47,7 +48,7 @@ ${links}
 export const GET: APIRoute = ({ site, url }) => {
   const siteUrl = site ?? new URL(url.origin);
 
-  const alternatesFor = (page: "home" | "work") => [
+  const alternatesFor = (page: PageKey) => [
     ...locales.map((locale) => ({
       hreflang: locale.hreflang,
       path: pagePaths[page][locale.key],
@@ -55,10 +56,22 @@ export const GET: APIRoute = ({ site, url }) => {
     { hreflang: "x-default", path: pagePaths[page].fa },
   ];
 
-  const pages: Array<{ path: string; alternates: Array<{ hreflang: string; path: string }> }> = [
-    { path: pagePaths.home.fa, alternates: alternatesFor("home") },
-    { path: pagePaths.home.en, alternates: alternatesFor("home") },
+  const staticPages: PageKey[] = [
+    "home",
+    "about",
+    "service-websites",
+    "service-apps",
+    "service-automation",
+    "service-growth",
   ];
+
+  const pages: Array<{ path: string; alternates: Array<{ hreflang: string; path: string }> }> =
+    staticPages.flatMap((page) =>
+      locales.map((locale) => ({
+        path: pagePaths[page][locale.key],
+        alternates: alternatesFor(page),
+      })),
+    );
 
   if (pbsWorkPages.fa.projects.length > 0 && pbsWorkPages.en.projects.length > 0) {
     pages.push(

@@ -73,7 +73,6 @@ const structuredData = noindex
     <meta name="theme-color" content={site.theme.colors.canvas} />
     <meta name="color-scheme" content="light" />
     <meta name="robots" content={noindex ? "noindex, follow" : "index, follow, max-image-preview:large"} />
-    {site.meta.keywords && <meta name="keywords" content={site.meta.keywords.join(", ")} />}
     {!noindex && <link rel="canonical" href={canonical} />}
     <link rel="icon" href={href("/favicon.svg")} type="image/svg+xml" />
     <link rel="alternate icon" href={href("/favicon-32.png")} sizes="32x32" type="image/png" />
@@ -101,7 +100,7 @@ const structuredData = noindex
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:site_name" content={site.brand.name} />
+    <meta property="og:site_name" content={site.brand.fullName ?? site.brand.name} />
     <meta property="og:locale" content={language.ogLocale} />
     {otherLocales.map((link) => (
       <meta property="og:locale:alternate" content={ogLocaleFor(link.locale)} />

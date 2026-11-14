@@ -9,6 +9,23 @@ import { href } from "./url";
  */
 export const pagePaths: Record<PageKey, Record<"fa" | "en", string>> = {
   home: { fa: "/", en: "/en/" },
+  about: { fa: "/about/", en: "/en/about/" },
+  "service-websites": {
+    fa: "/services/websites/",
+    en: "/en/services/websites/",
+  },
+  "service-apps": {
+    fa: "/services/apps/",
+    en: "/en/services/apps/",
+  },
+  "service-automation": {
+    fa: "/services/automation/",
+    en: "/en/services/automation/",
+  },
+  "service-growth": {
+    fa: "/services/growth/",
+    en: "/en/services/growth/",
+  },
   work: { fa: "/work/", en: "/en/work/" },
 };
 

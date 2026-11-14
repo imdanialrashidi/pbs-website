@@ -5,6 +5,7 @@ import Icon from "../ui/Icon.astro";
 import Section from "../ui/Section.astro";
 import SectionHeading from "../ui/SectionHeading.astro";
 import type { SectionSlot } from "../../lib/sections";
+import { localePageHref } from "../../lib/routes";
 import { localeHref } from "../../lib/url";
 
 interface Props {
@@ -44,6 +45,16 @@ const action = faq?.action
                 </summary>
                 <div class="faq__answer">
                   <p>{item.answer}</p>
+                  {item.link && (
+                    <a
+                      class="faq__link"
+                      href={"page" in item.link
+                        ? localePageHref(site, item.link.page)
+                        : localeHref(site, item.link.href)}
+                    >
+                      {item.link.label}
+                    </a>
+                  )}
                 </div>
               </details>
             ))}
@@ -131,6 +142,28 @@ const action = faq?.action
     color: var(--c-muted);
     font-size: 0.94rem;
     line-height: 1.85;
+  }
+
+  .faq__link {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    margin-top: 0.55rem;
+    color: var(--c-action);
+    font-size: 0.88rem;
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  .faq__link:hover {
+    color: var(--c-ink);
+  }
+
+  .faq__link:focus-visible {
+    outline: 2px solid var(--c-focus);
+    outline-offset: 3px;
   }
 
   .faq__action {

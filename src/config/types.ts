@@ -21,8 +21,15 @@ export type Direction = "rtl" | "ltr";
 /** The four public contact channels PBS publishes. */
 export type ContactChannelId = "whatsapp" | "bale" | "telegram" | "phone";
 
+/** The four service detail pages, one route pair each. */
+export type ServicePageKey =
+  | "service-websites"
+  | "service-apps"
+  | "service-automation"
+  | "service-growth";
+
 /** Published page routes. A page key maps to one route per locale. */
-export type PageKey = "home" | "work";
+export type PageKey = "home" | "work" | "about" | ServicePageKey;
 
 /** A locale route. `path` is base-independent, for example `/en/work/`. */
 export interface LocaleLink {
@@ -228,6 +235,7 @@ export interface ServicesContent {
     problem: string;
     deliverables: string;
     boundary: string;
+    viewService: string;
   };
   items: Array<{
     title: string;
@@ -235,6 +243,8 @@ export interface ServicesContent {
     description: string;
     deliverables: string[];
     boundary: string;
+    /** Detail page for this service, if one is published. */
+    page?: ServicePageKey;
   }>;
 }
 
@@ -257,6 +267,8 @@ export interface FaqContent {
   items: Array<{
     question: string;
     answer: string;
+    /** Optional contextual link, resolved inside the current locale. */
+    link?: { label: string } & ({ page: PageKey } | { href: string });
   }>;
 }
 
@@ -343,6 +355,13 @@ export interface WorkProject {
   featured?: boolean;
 }
 
+/** The visible and structured breadcrumb for a second-level page. */
+export interface PageBreadcrumbContent {
+  label: string;
+  home: string;
+  current: string;
+}
+
 /** Content for the portfolio page in one locale. */
 export interface WorkPageContent {
   meta: {
@@ -352,11 +371,7 @@ export interface WorkPageContent {
   eyebrow: string;
   headline: Headline;
   intro: string;
-  breadcrumb: {
-    label: string;
-    home: string;
-    current: string;
-  };
+  breadcrumb: PageBreadcrumbContent;
   empty: {
     label: string;
     title: string;
@@ -384,9 +399,97 @@ export interface WorkPageContent {
   projects: WorkProject[];
 }
 
+/** Content for one of the four service detail pages. */
+export interface ServicePageContent {
+  meta: {
+    title: string;
+    description: string;
+  };
+  breadcrumb: PageBreadcrumbContent;
+  eyebrow: string;
+  headline: Headline;
+  intro: string;
+  problem: {
+    title: string;
+    body: string;
+    signals: string[];
+  };
+  scope: {
+    title: string;
+    intro?: string;
+    items: Array<{
+      title: string;
+      description: string;
+    }>;
+  };
+  deliverables: {
+    title: string;
+    items: string[];
+    note?: string;
+  };
+  boundaries: {
+    title: string;
+    intro?: string;
+    items: string[];
+    note?: string;
+  };
+  process: {
+    title: string;
+    intro?: string;
+    items: Array<{
+      title: string;
+      description: string;
+    }>;
+  };
+  faq: {
+    title: string;
+    items: Array<{
+      question: string;
+      answer: string;
+    }>;
+  };
+  related: {
+    title: string;
+    items: Array<{
+      label: string;
+      page: ServicePageKey;
+    }>;
+  };
+  closing: {
+    title: string;
+    body: string;
+    action: Action;
+  };
+}
+
+/** Content for the about page in one locale. */
+export interface AboutPageContent {
+  meta: {
+    title: string;
+    description: string;
+  };
+  breadcrumb: PageBreadcrumbContent;
+  eyebrow: string;
+  headline: Headline;
+  intro: string;
+  sections: Array<{
+    title: string;
+    body: string;
+    points?: string[];
+    note?: string;
+  }>;
+  closing: {
+    title: string;
+    body: string;
+    action: Action;
+  };
+}
+
 export interface SiteConfig {
   brand: {
     name: string;
+    /** Full public name used where metadata needs disambiguation. */
+    fullName?: string;
     mark: "tide" | "frame" | "sun";
     descriptor: string;
     /** Approved logo variant for light surfaces. */
@@ -401,7 +504,6 @@ export interface SiteConfig {
     locale: string;
     /** Optional; defaults to the script direction of `locale`. */
     direction?: Direction;
-    keywords?: string[];
     /** Base-independent page route: `/` for Persian, `/en/` for English. */
     path?: string;
     socialImage?: SocialImage;

@@ -9,6 +9,7 @@ import { localeLinks, pbsContactLinks, pbsThemeBase } from "./shared";
 export const pbsEn = {
   brand: {
     name: "PBS",
+    fullName: "PBS | Practical Business Solutions",
     mark: "tide",
     descriptor: "Practical Business Solutions",
     logo: {
@@ -25,21 +26,12 @@ export const pbsEn = {
     },
   },
   meta: {
-    title: "PBS | Websites, business apps and automation",
+    title: "PBS Practical Business Solutions | B2B Websites & Apps",
     description:
-      "PBS is an independent B2B digital solutions team building websites, business apps and workflow automation with a clear scope and practical delivery.",
+      "PBS | Practical Business Solutions builds websites, business apps and workflow automation with a clear scope, staged delivery and a usable handover.",
     locale: "en",
     direction: "ltr",
     path: "/en/",
-    keywords: [
-      "B2B digital solutions",
-      "business website design",
-      "business applications",
-      "management dashboards",
-      "workflow automation",
-      "PBS",
-      "Practical Business Solutions",
-    ],
     socialImage: {
       src: "/og-image.png",
       alt: "PBS, practical digital solutions for business",
@@ -61,6 +53,7 @@ export const pbsEn = {
     { label: "Services", section: "services" },
     { label: "Process", section: "features" },
     { label: "Why PBS", section: "reasons" },
+    { label: "About", page: "about" },
     { label: "FAQ", section: "faq" },
   ],
   headerAction: {
@@ -71,8 +64,8 @@ export const pbsEn = {
   hero: {
     eyebrow: "Independent B2B digital solutions team",
     headline: {
-      lead: "From a business problem to a ",
-      accent: "digital solution you can use",
+      lead: "Websites, business apps and automation for ",
+      accent: "a real business problem",
       tail: ".",
     },
     intro:
@@ -119,6 +112,7 @@ export const pbsEn = {
       problem: "Problem",
       deliverables: "Deliverables",
       boundary: "Scope boundary",
+      viewService: "View service",
     },
     items: [
       {
@@ -134,6 +128,7 @@ export const pbsEn = {
           "Launch guide",
         ],
         boundary: "Search ranking, sales or campaign results are not guaranteed.",
+        page: "service-websites",
       },
       {
         title: "Business panels and software",
@@ -149,6 +144,7 @@ export const pbsEn = {
         ],
         boundary:
           "Critical systems, sensitive financial tools and 24/7 support are outside the default scope.",
+        page: "service-apps",
       },
       {
         title: "Automation and integrations",
@@ -164,6 +160,7 @@ export const pbsEn = {
         ],
         boundary:
           "Third-party access and reliability are assessed before work starts.",
+        page: "service-automation",
       },
       {
         title: "Scoped digital growth execution",
@@ -179,6 +176,7 @@ export const pbsEn = {
         ],
         boundary:
           "Full campaign management, ongoing content production and guaranteed sales are not in scope.",
+        page: "service-growth",
       },
     ],
     note:
@@ -362,6 +360,7 @@ export const pbsEn = {
         question: "Do you have public case studies?",
         answer:
           "The work page publishes only projects we have permission to show. Until a project can be published, we discuss the method, scope and the kind of deliverables instead.",
+        link: { label: "See the work page", page: "work" },
       },
       {
         question: "How is project pricing set?",

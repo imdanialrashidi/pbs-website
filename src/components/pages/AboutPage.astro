@@ -1,0 +1,343 @@
+---
+import type { AboutPageContent, SiteConfig } from "../../config/types";
+import Button from "../ui/Button.astro";
+import Eyebrow from "../ui/Eyebrow.astro";
+import HeadlineText from "../ui/Headline.astro";
+import PageBreadcrumb from "../ui/PageBreadcrumb.astro";
+import { pageLanguage } from "../../lib/language";
+import { localeHref, localeHome } from "../../lib/url";
+
+interface Props {
+  site: SiteConfig;
+  about: AboutPageContent;
+}
+
+const { site, about } = Astro.props;
+const language = pageLanguage(site);
+const homeHref = localeHome(site);
+const closingAction = {
+  ...about.closing.action,
+  href: localeHref(site, about.closing.action.href),
+};
+---
+
+<div class="about-page">
+  <PageBreadcrumb
+    label={about.breadcrumb.label}
+    home={about.breadcrumb.home}
+    homeHref={homeHref}
+    current={about.breadcrumb.current}
+  />
+
+  <header class="about-hero">
+    <div class="shell about-hero__grid">
+      <div class="about-hero__copy">
+        <Eyebrow text={about.eyebrow} />
+        <h1 id="page-title" class="display display--lg about-hero__title">
+          <HeadlineText headline={about.headline} />
+        </h1>
+        <p class="about-hero__intro">{about.intro}</p>
+        <div class="about-hero__actions">
+          <Button {...closingAction} />
+        </div>
+      </div>
+
+      <div class="about-hero__aside" aria-hidden="true">
+        <span class="about-hero__stamp">{site.brand.name} / ABOUT</span>
+        <span class="about-hero__rule"></span>
+      </div>
+    </div>
+  </header>
+
+  <section class="section about-body" aria-label={about.eyebrow}>
+    <div class="shell about-layout">
+      <aside class="about-aside" aria-hidden="true">
+        <span class="about-aside__stamp">{site.brand.name} / ABOUT</span>
+        <span class="about-aside__rule"></span>
+      </aside>
+
+      <div class="about-sections">
+        {
+          about.sections.map((section, index) => (
+            <section
+              class="about-section"
+              aria-labelledby={`about-section-${index + 1}`}
+            >
+              <div class="about-section__head">
+                <span class="about-section__index" aria-hidden="true">
+                  {language.index(index + 1)}
+                </span>
+                <h2
+                  id={`about-section-${index + 1}`}
+                  class="display display--md"
+                >
+                  {section.title}
+                </h2>
+              </div>
+
+              <div class="about-section__body">
+                <p class="about-section__text">{section.body}</p>
+                {section.points && (
+                  <ul class="about-points">
+                    {section.points.map((point) => <li>{point}</li>)}
+                  </ul>
+                )}
+                {section.note && <p class="section-note">{section.note}</p>}
+              </div>
+            </section>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section about-closing" aria-labelledby="about-closing-title">
+    <div class="shell about-closing__inner">
+      <div>
+        <h2 id="about-closing-title" class="display display--md">
+          {about.closing.title}
+        </h2>
+        <p class="about-closing__body">{about.closing.body}</p>
+      </div>
+      <Button {...closingAction} />
+    </div>
+  </section>
+</div>
+
+<style>
+  .about-page {
+    background: var(--c-canvas);
+  }
+
+  .about-hero {
+    border-bottom: 1px solid var(--c-line);
+    padding-block: clamp(2rem, 4.5vw, 4rem);
+  }
+
+  .about-hero__grid {
+    display: grid;
+    gap: 2rem;
+    align-items: end;
+  }
+
+  .about-hero__copy {
+    max-width: 56rem;
+    min-width: 0;
+  }
+
+  .about-hero__title {
+    max-width: 22ch;
+  }
+
+  :lang(fa) .about-hero__title {
+    max-width: 24ch;
+  }
+
+  .about-hero__intro {
+    max-width: 58ch;
+    margin-top: 1.1rem;
+    color: var(--c-muted);
+    font-size: 1.02rem;
+    line-height: 1.9;
+  }
+
+  .about-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.4rem;
+  }
+
+  .about-hero__aside {
+    display: none;
+    min-width: 14rem;
+    align-self: end;
+    gap: 0.65rem;
+    border-top: 1px solid var(--c-line);
+    padding-top: 0.8rem;
+    color: var(--c-muted);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+
+  .about-hero__rule {
+    width: 2.1rem;
+    height: 2px;
+    background: var(--c-accent);
+  }
+
+  :lang(fa) .about-hero__aside {
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 0.78rem;
+  }
+
+  .about-body {
+    border-bottom: 1px solid var(--c-line);
+  }
+
+  .about-layout {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .about-aside {
+    display: none;
+  }
+
+  .about-aside__stamp {
+    color: var(--c-action);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+
+  .about-aside__rule {
+    width: 2.2rem;
+    height: 2px;
+    margin-block: 0.8rem;
+    background: var(--c-accent);
+  }
+
+  .about-sections {
+    display: grid;
+    gap: 2.5rem;
+    min-width: 0;
+  }
+
+  .about-section {
+    display: grid;
+    gap: 1rem;
+    border-top: 1px solid var(--c-line);
+    padding-top: 1.2rem;
+  }
+
+  .about-section__index {
+    display: block;
+    margin-bottom: 0.45rem;
+    color: var(--c-action);
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+    line-height: 1.5;
+  }
+
+  .about-section h2 {
+    max-width: 18ch;
+  }
+
+  .about-section__body {
+    min-width: 0;
+  }
+
+  .about-section__text {
+    max-width: 62ch;
+    color: var(--c-ink);
+    font-size: 0.97rem;
+    line-height: 1.85;
+  }
+
+  .about-points {
+    display: grid;
+    margin-top: 1rem;
+    border-top: 1px solid var(--c-line);
+  }
+
+  .about-points li {
+    display: grid;
+    grid-template-columns: 0.45rem minmax(0, 1fr);
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--c-line);
+    padding-block: 0.65rem;
+    color: var(--c-muted);
+    font-size: 0.92rem;
+    line-height: 1.7;
+  }
+
+  .about-points li::before {
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-top: 0.55em;
+    background: var(--c-accent);
+    content: "";
+  }
+
+  .about-closing {
+    border-top: 1px solid var(--c-line);
+  }
+
+  .about-closing__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .about-closing h2 {
+    max-width: 22ch;
+  }
+
+  .about-closing__body {
+    max-width: 54ch;
+    margin-top: 0.7rem;
+    color: var(--c-muted);
+    font-size: 0.96rem;
+    line-height: 1.85;
+  }
+
+  :lang(fa) .about-hero__intro,
+  :lang(fa) .about-section__text,
+  :lang(fa) .about-points li,
+  :lang(fa) .about-closing__body {
+    line-height: 1.95;
+  }
+
+  :lang(fa) .about-section h2,
+  :lang(fa) .about-closing h2 {
+    letter-spacing: 0;
+  }
+
+  :lang(fa) .about-aside__stamp,
+  :lang(fa) .about-section__index {
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 0.78rem;
+  }
+
+  @media (min-width: 760px) {
+    .about-section {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+      column-gap: clamp(2rem, 6vw, 5rem);
+    }
+  }
+
+  @media (min-width: 900px) {
+    .about-hero__grid {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 3rem;
+    }
+
+    .about-hero__aside {
+      display: grid;
+    }
+
+    .about-layout {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+      column-gap: clamp(2rem, 6vw, 6rem);
+      align-items: start;
+    }
+
+    .about-aside {
+      position: sticky;
+      top: 7rem;
+      display: block;
+    }
+  }
+</style>

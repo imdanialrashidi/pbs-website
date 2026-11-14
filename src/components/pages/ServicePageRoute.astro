@@ -1,0 +1,34 @@
+---
+import type { ServicePageKey } from "../../config/types";
+import { pbsServicePages, pbsSites } from "../../config/site";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { breadcrumbSchema, serviceSchema } from "../../lib/schema";
+import { localeHome, pagePath } from "../../lib/url";
+import ServicePage from "./ServicePage.astro";
+
+interface Props {
+  locale: "fa" | "en";
+  pageKey: ServicePageKey;
+}
+
+const { locale, pageKey } = Astro.props;
+const site = pbsSites[locale];
+const service = pbsServicePages[locale][pageKey];
+const siteUrl = Astro.site ?? new URL(Astro.url.origin);
+const canonical = new URL(pagePath(Astro.url.pathname), siteUrl).href;
+const homeUrl = new URL(localeHome(site), siteUrl).href;
+const extraSchema = [
+  breadcrumbSchema(canonical, homeUrl, service.breadcrumb.home, service.breadcrumb.current),
+  serviceSchema(canonical, service.breadcrumb.current, service.meta.description, siteUrl),
+];
+---
+
+<BaseLayout
+  site={site}
+  pageKey={pageKey}
+  title={service.meta.title}
+  description={service.meta.description}
+  extraSchema={extraSchema}
+>
+  <ServicePage site={site} service={service} />
+</BaseLayout>

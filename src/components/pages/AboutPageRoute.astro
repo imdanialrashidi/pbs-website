@@ -1,0 +1,31 @@
+---
+import { pbsAboutPages, pbsSites } from "../../config/site";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { breadcrumbSchema } from "../../lib/schema";
+import { localeHome, pagePath } from "../../lib/url";
+import AboutPage from "./AboutPage.astro";
+
+interface Props {
+  locale: "fa" | "en";
+}
+
+const { locale } = Astro.props;
+const site = pbsSites[locale];
+const about = pbsAboutPages[locale];
+const siteUrl = Astro.site ?? new URL(Astro.url.origin);
+const canonical = new URL(pagePath(Astro.url.pathname), siteUrl).href;
+const homeUrl = new URL(localeHome(site), siteUrl).href;
+const extraSchema = [
+  breadcrumbSchema(canonical, homeUrl, about.breadcrumb.home, about.breadcrumb.current),
+];
+---
+
+<BaseLayout
+  site={site}
+  pageKey="about"
+  title={about.meta.title}
+  description={about.meta.description}
+  extraSchema={extraSchema}
+>
+  <AboutPage site={site} about={about} />
+</BaseLayout>

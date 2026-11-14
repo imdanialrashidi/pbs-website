@@ -12,6 +12,26 @@ export interface SchemaInput {
   extra?: unknown[];
 }
 
+/** A truthful sales contact point, emitted only after a channel is verified. */
+function contactPointFor(site: SiteConfig): Record<string, unknown> | undefined {
+  const phone = site.contactLinks?.phone;
+  const whatsapp = site.contactLinks?.whatsapp;
+  if (!phone?.href && !whatsapp?.href) return undefined;
+
+  const point: Record<string, unknown> = {
+    "@type": "ContactPoint",
+    contactType: "sales",
+    areaServed: { "@type": "Country", name: "Iran" },
+    availableLanguage: ["fa", "en"],
+  };
+
+  const phoneNumber = phone?.display ?? phone?.href?.replace(/^tel:/, "");
+  if (phoneNumber) point.telephone = phoneNumber;
+  if (whatsapp?.href) point.url = whatsapp.href;
+
+  return point;
+}
+
 /**
  * One JSON-LD graph per indexable page. It describes only what the page
  * actually contains: the organisation, the site, the page, and the FAQ when
@@ -24,12 +44,17 @@ export function buildStructuredData(input: SchemaInput): Record<string, unknown>
   const websiteId = `${homeUrl}#website`;
   const pageId = `${canonical}#webpage`;
   const logoUrl = new URL(href("/icon-512.png"), siteUrl).href;
+  const contactPoint = contactPointFor(site);
+  const locales = [...new Set((site.localeLinks ?? []).map((link) => link.locale))];
+  const websiteLanguages = locales.length > 0 ? locales : [site.meta.locale];
+  const pageType =
+    pageKey === "work" ? "CollectionPage" : pageKey === "about" ? "AboutPage" : "WebPage";
 
-  const organization = {
+  const organization: Record<string, unknown> = {
     "@type": "Organization",
     "@id": organizationId,
-    name: site.brand.name,
-    alternateName: "Practical Business Solutions",
+    name: site.brand.fullName ?? site.brand.name,
+    alternateName: [site.brand.name, "Practical Business Solutions"],
     url: homeUrl,
     logo: {
       "@type": "ImageObject",
@@ -37,26 +62,26 @@ export function buildStructuredData(input: SchemaInput): Record<string, unknown>
       width: 512,
       height: 512,
     },
-    description: site.meta.description,
     slogan: "Practical Business Solutions",
     areaServed: {
       "@type": "Country",
       name: "Iran",
     },
     knowsAbout: site.services?.items.map((item) => item.title) ?? [],
+    ...(contactPoint ? { contactPoint } : {}),
   };
 
   const website = {
     "@type": "WebSite",
     "@id": websiteId,
     url: homeUrl,
-    name: site.brand.name,
-    inLanguage: site.meta.locale,
+    name: site.brand.fullName ?? site.brand.name,
+    inLanguage: websiteLanguages.length === 1 ? websiteLanguages[0] : websiteLanguages,
     publisher: { "@id": organizationId },
   };
 
   const webpage = {
-    "@type": pageKey === "work" ? "CollectionPage" : "WebPage",
+    "@type": pageType,
     "@id": pageId,
     url: canonical,
     name: title,
@@ -126,6 +151,7 @@ export function workItemListSchema(
   canonical: string,
   projects: WorkProject[],
   name: string,
+  siteUrl: URL,
 ): Record<string, unknown> | undefined {
   if (projects.length === 0) return undefined;
 
@@ -139,7 +165,30 @@ export function workItemListSchema(
       position: index + 1,
       name: project.title,
       description: project.summary,
-      url: project.href ?? `${canonical}#${project.slug}`,
+      url: project.href
+        ? new URL(href(project.href), siteUrl).href
+        : `${canonical}#${project.slug}`,
     })),
+  };
+}
+
+/** Structured data for a service detail page. Only visible page facts are used. */
+export function serviceSchema(
+  canonical: string,
+  serviceName: string,
+  description: string,
+  siteUrl: URL,
+): Record<string, unknown> {
+  const homeUrl = new URL(href("/"), siteUrl).href;
+
+  return {
+    "@type": "Service",
+    "@id": `${canonical}#service`,
+    name: serviceName,
+    serviceType: serviceName,
+    description,
+    url: canonical,
+    provider: { "@id": `${homeUrl}#organization` },
+    areaServed: { "@type": "Country", name: "Iran" },
   };
 }

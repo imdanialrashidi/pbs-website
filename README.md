@@ -2,8 +2,13 @@
 
 The public website for **PBS**, an independent, early-stage B2B digital
 solutions team. Persian is the reference locale at the deployment root; English
-is a real LTR page at `/en/`. The portfolio is a second route pair at `/work/`
-and `/en/work/`. All pages are prerendered in the same static Astro build.
+is a real LTR page at `/en/`. The portfolio is a route pair at `/work/` and
+`/en/work/`; the about page and four service pages extend the same bilingual
+build. All pages are prerendered in the same static Astro build.
+
+Production is served at **https://pbsmarketing.ir** (apex). The custom domain is
+pinned in `public/CNAME`; `astro.config.mjs` derives the absolute site URL and
+the root base from it.
 
 The site is deliberately static: no backend, CMS, database, analytics, remote
 font service, third-party script or fake inquiry submission. Contact actions
@@ -15,7 +20,7 @@ navy surfaces.
 
 ## Stack
 
-- Astro `7.4.4`, static output
+- Astro `7.4.12`, static output
 - TypeScript `5.9.3` with Astro's strict config
 - Lucide icons via `@lucide/astro`, inlined at build time
 - Self-hosted Vazirmatn (Persian) and Inter (English) variable WOFF2 fonts
@@ -31,18 +36,28 @@ asset is used.
 | --- | --- | --- | --- |
 | `/` | `fa-IR` | RTL | `src/config/pbs/fa.ts` |
 | `/en/` | `en` | LTR | `src/config/pbs/en.ts` |
+| `/about/` | `fa-IR` | RTL | `src/config/pbs/about.ts` |
+| `/en/about/` | `en` | LTR | `src/config/pbs/about.ts` |
+| `/services/websites/` | `fa-IR` | RTL | `src/config/pbs/service-pages.ts` |
+| `/en/services/websites/` | `en` | LTR | `src/config/pbs/service-pages.ts` |
+| `/services/apps/` | `fa-IR` | RTL | `src/config/pbs/service-pages.ts` |
+| `/en/services/apps/` | `en` | LTR | `src/config/pbs/service-pages.ts` |
+| `/services/automation/` | `fa-IR` | RTL | `src/config/pbs/service-pages.ts` |
+| `/en/services/automation/` | `en` | LTR | `src/config/pbs/service-pages.ts` |
+| `/services/growth/` | `fa-IR` | RTL | `src/config/pbs/service-pages.ts` |
+| `/en/services/growth/` | `en` | LTR | `src/config/pbs/service-pages.ts` |
 | `/work/` | `fa-IR` | RTL | `src/config/pbs/work.ts` |
 | `/en/work/` | `en` | LTR | `src/config/pbs/work.ts` |
 | `/404.html` | `fa-IR` | RTL | `src/pages/404.astro` |
 | `/sitemap.xml` | | | `src/pages/sitemap.xml.ts` |
 | `/robots.txt` | | | `src/pages/robots.txt.ts` |
 
-> **Owner action before a public launch:** the four public contact identifiers are
-> intentionally empty because PBS has not supplied verified values. All four
-> channels currently show a truthful non-clickable "details coming soon" state.
-> Fill [`src/config/pbs/contact.ts`](src/config/pbs/contact.ts), rebuild, and
-> verify the links as described below. Do not substitute guessed handles or
-> numbers.
+> **Release blocker:** the four public contact identifiers are intentionally
+> empty because PBS has not supplied verified values. All four channels currently
+> show a truthful non-clickable "details coming soon" state. Before a public
+> launch, either fill [`src/config/pbs/contact.ts`](src/config/pbs/contact.ts)
+> with verified values, rebuild and test the links, or explicitly accept the
+> pending state. Do not substitute guessed handles or numbers.
 
 ## Requirements and commands
 
@@ -58,15 +73,20 @@ npm run preview      # serve the production build
 npm run verify       # npm run check && npm run build
 ```
 
-Verify the GitHub Pages project path before claiming deployment compatibility:
+Verify the production custom domain and the GitHub Pages project path:
 
 ```sh
+npm run verify                     # with public/CNAME: https://pbsmarketing.ir/
+npm run preview                    # serve the production build at the root
+
+# Compatibility regression only; rebuild production afterwards.
 SITE_URL=https://imdanialrashidi.github.io BASE_PATH=/pbs-website/ npm run build
 BASE_PATH=/pbs-website/ npm run preview
 ```
 
-Open the URL printed by Astro including `/pbs-website/`. The preview command
-must receive the same `BASE_PATH` as the build.
+Open the URL printed by Astro. The preview command must receive the same
+`BASE_PATH` as the build. After the project-path regression, run
+`npm run verify` again so `dist/` contains the production-domain build.
 
 ## Project map
 
@@ -76,10 +96,12 @@ src/
     pbs/
       fa.ts              Persian homepage copy, metadata and navigation
       en.ts              English homepage copy, metadata and navigation
+      service-pages.ts   four service detail pages for both locales
+      about.ts           about page copy for both locales
       work.ts            portfolio copy for both locales
       shared.ts          palette, shape, locale links, resolved contacts
       contact.ts         THE editable public contact identifiers
-    site.ts              PBS locale and work-page registries
+    site.ts              PBS locale, service, about and work-page registries
     types.ts             typed content and configuration contract
   lib/
     contact.ts           validated contact-link resolution
@@ -98,12 +120,17 @@ src/
     layout/              Header, Footer, LanguageSwitch
     sections/            Hero, Definition, Services, Patterns, Features,
                          Reasons, Faq, Contact, SystemMap
+    pages/               ServicePage, AboutPage and their route wrappers
     work/                WorkPage and project-card presentation
     seo/                 JsonLd
-    ui/                  Button, Logo, Section, headings and icons
+    ui/                  Button, Logo, Section, headings, breadcrumb and icons
   pages/
     index.astro          Persian homepage at the deployment root
     en/index.astro       English homepage at /en/
+    about/               Persian about page
+    en/about/            English about page
+    services/            four Persian service detail pages
+    en/services/         four English service detail pages
     work/index.astro     Persian portfolio at /work/
     en/work/index.astro  English portfolio at /en/work/
     404.astro            static not-found page
@@ -119,6 +146,7 @@ public/
   icon-512.png           manifest icon
   site.webmanifest       installable-site metadata
   og-image.png           1200 × 630 social preview
+  CNAME                  production custom domain: pbsmarketing.ir
 .github/workflows/deploy.yml
 docs/PBS_Business_DNA.md
 docs/PBS_Design_System.md
@@ -207,17 +235,37 @@ There is no contact form, email endpoint, API or storage in the PBS site.
 ## SEO
 
 - `src/pages/sitemap.xml.ts` generates the sitemap from `src/lib/routes.ts` and
-  includes reciprocal `hreflang` links plus `x-default`. The portfolio is
-  included only when both locale portfolios contain at least one real project.
+  includes reciprocal `hreflang` links plus `x-default` for every indexable
+  page. The portfolio is included only when both locale portfolios contain at
+  least one real project.
 - `src/pages/robots.txt.ts` generates `/robots.txt` with the absolute sitemap URL
-  for the current deployment base.
+  for the current deployment base. On a project-path GitHub Pages deployment,
+  crawlers still read `robots.txt` only from the origin root; see the deployment
+  note below.
 - `src/lib/schema.ts` generates JSON-LD from visible content: Organization,
-  WebSite, WebPage, FAQPage on the homepage, and breadcrumb plus ItemList on a
-  published portfolio page. No ratings, prices or client claims are invented.
+  WebSite, WebPage, FAQPage on the homepage, Service plus BreadcrumbList on a
+  service page, AboutPage plus BreadcrumbList on the about page, and breadcrumb
+  plus ItemList on a published portfolio page. No ratings, prices or client
+  claims are invented.
 - Every indexable page has a self-referencing canonical. The portfolio is
   `noindex, follow` while empty.
 - Titles and descriptions are specific to each page and stay within a useful
   search-result length. Headings follow one `h1` per page and a logical hierarchy.
+
+### Search discoverability
+
+Production uses the apex custom domain, so `robots.txt` and `sitemap.xml` are
+served at the origin root and crawlers discover the sitemap normally. The
+generated files contain absolute `https://pbsmarketing.ir/...` URLs derived from
+`public/CNAME` (or `SITE_URL`).
+
+After the first successful deployment, submit
+`https://pbsmarketing.ir/sitemap.xml` in Google Search Console and Bing Webmaster
+Tools.
+
+A project-path build at `https://<owner>.github.io/<repo>/` still has the
+origin-root `robots.txt` limitation. Use it only for compatibility testing, not
+for the public launch.
 
 ## Brand assets
 
@@ -311,24 +359,85 @@ is dropped; a dead fragment link fails the build.
 
 ## Deployment
 
+Production is the apex custom domain **https://pbsmarketing.ir**, served by
+GitHub Pages at the site root. `public/CNAME` is the build input that makes
+`astro.config.mjs` use `site: "https://pbsmarketing.ir"` and `base: "/"`. Because
+the site publishes from a custom GitHub Actions workflow, Pages ignores a
+`CNAME` file in the artifact: the same domain must also be set under
+**Settings → Pages → Custom domain**. Do not add a second domain file or
+hardcode the host in components.
+
 The included [Pages workflow](.github/workflows/deploy.yml) is pinned to full
 commit SHAs, installs from the lockfile, runs `npm run verify`, and requests only
-the permissions Pages needs. This repository change does **not** deploy it.
+the permissions Pages needs. A push to `main` or a manual workflow run publishes
+the build. This repository change does **not** deploy it.
 
-To enable publication later, the owner must:
+### One-time DNS setup at the .ir registrar
 
-1. Open the repository on GitHub.
-2. Go to **Settings → Pages**.
-3. Set **Source** to **GitHub Actions**.
-4. Push to `main` or run the workflow manually.
+Add `pbsmarketing.ir` under **Settings → Pages → Custom domain** first, then
+create these records. GitHub recommends configuring the domain in the repository
+before DNS, which reduces subdomain-takeover risk.
+
+GitHub Pages' documented apex records:
+
+| Type | Name | Value |
+| --- | --- | --- |
+| `A` | `@` | `185.199.108.153` |
+| `A` | `@` | `185.199.109.153` |
+| `A` | `@` | `185.199.110.153` |
+| `A` | `@` | `185.199.111.153` |
+| `AAAA` | `@` | `2606:50c0:8000::153` |
+| `AAAA` | `@` | `2606:50c0:8001::153` |
+| `AAAA` | `@` | `2606:50c0:8002::153` |
+| `AAAA` | `@` | `2606:50c0:8003::153` |
+| `CNAME` | `www` | `imdanialrashidi.github.io` |
+
+Remove any parked apex `A`/`CNAME` records at the registrar. Verify from a
+machine that can query the public DNS:
+
+```sh
+dig +short pbsmarketing.ir A
+dig +short pbsmarketing.ir AAAA
+dig +short www.pbsmarketing.ir CNAME
+```
+
+The apex must return the four GitHub Pages addresses and `www` must return the
+repository host. Until the domain resolves, Pages cannot pass the custom-domain
+check or issue a certificate.
+
+### Enable Pages and HTTPS
+
+1. Push the release commit to `main`, or run the workflow manually.
+2. In GitHub, open **Settings → Pages** and set **Source** to **GitHub Actions**.
+3. Enter `pbsmarketing.ir` under **Custom domain** and save. Keep the `www` DNS
+   record; GitHub redirects `www` to the apex.
+4. Wait for the DNS check to pass, then enable **Enforce HTTPS**. GitHub issues
+   the certificate after DNS resolves.
+5. Confirm `https://pbsmarketing.ir/`, `/en/`, `/about/`, the four service pairs,
+   `/work/` and `/404.html`, then submit `https://pbsmarketing.ir/sitemap.xml`
+   in Google Search Console and Bing Webmaster Tools.
 
 `astro.config.mjs` derives `site` and `base` in this order: `SITE_URL` /
 `BASE_PATH`, then `public/CNAME`, then GitHub repository values. A project
-repository therefore builds at `https://<owner>.github.io/<repo>/`; a
-`<owner>.github.io` repository builds at the root. Keep `output: "static"`.
+repository without a custom domain builds at
+`https://<owner>.github.io/<repo>/`; an `<owner>.github.io` repository builds at
+the root. Keep `output: "static"`.
 
-The project-path build above is required before claiming GitHub Pages
-compatibility. The static `404.html` is generated; there is no server rewrite.
+The project-path build is a compatibility regression, not the production shape.
+The static `404.html` is generated; there is no server rewrite.
+
+### Release checklist
+
+- [ ] `src/config/pbs/contact.ts` holds four verified contact values, or the
+      launch explicitly accepts the honest "details coming soon" state.
+- [ ] `public/CNAME` contains exactly `pbsmarketing.ir`.
+- [ ] Apex `A`/`AAAA` and `www` `CNAME` resolve to GitHub Pages.
+- [ ] Pages source is **GitHub Actions** and the custom domain is verified.
+- [ ] **Enforce HTTPS** is on.
+- [ ] `npm run verify` passes on the release commit.
+- [ ] `https://pbsmarketing.ir/robots.txt` and `/sitemap.xml` are live and
+      reference the production host.
+- [ ] The sitemap is submitted after DNS is live.
 
 ## Verification
 
@@ -336,10 +445,10 @@ Start from the real scripts:
 
 ```sh
 npm ci
-npm run check
-npm run build
+npm run verify
 SITE_URL=https://imdanialrashidi.github.io BASE_PATH=/pbs-website/ npm run build
 BASE_PATH=/pbs-website/ npm run preview
+npm run verify   # restore the production-domain build in dist/
 ```
 
 Browser checks used for this site:
@@ -355,7 +464,8 @@ Browser checks used for this site:
   details still open.
 - Mobile menu open/close, Escape, focus containment/return and 44 px controls.
 - FAQ keyboard operation and open/closed state.
-- Language switch round-trip between `/` and `/en/`, and between `/work/` and
+- Language switch round-trip between `/` and `/en/`, between `/about/` and
+  `/en/about/`, between each `/services/.../` pair, and between `/work/` and
   `/en/work/`, including locale-local anchors.
 - Sticky-header anchor landing: no heading is hidden under the header after
   navigation.
@@ -363,11 +473,13 @@ Browser checks used for this site:
   verified identifiers (test in a throwaway build, then restore the empty
   config if the values are not ready).
 - `prefers-reduced-motion: reduce` leaves all content visible.
-- Production base-path HTML: favicon, manifest, CSS, WOFF2, logo, canonical,
-  `hreflang`, Open Graph, JSON-LD, sitemap, robots and the static 404.
+- Production HTML at the custom-domain root: favicon, manifest, CSS, WOFF2, logo,
+  canonical, `hreflang`, Open Graph, JSON-LD, sitemap, robots and the static 404
+  all use `https://pbsmarketing.ir/`.
 
-Lighthouse and Core Web Vitals were not measured for this build. Do not report
-scores that were not actually captured.
+Lighthouse lab results and field Core Web Vitals are not guaranteed by the build
+itself. If you report them, use a production build and record the exact URL,
+device and date. Do not report scores that were not actually captured.
 
 ## Delivery boundary
 

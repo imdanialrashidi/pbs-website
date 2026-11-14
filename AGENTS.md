@@ -2,8 +2,8 @@
 
 This repository is the production public website for **PBS | Practical Business
 Solutions**, an independent, early-stage B2B digital solutions team. It is
-Persian-first with a real English LTR page and a separate portfolio route,
-statically built for GitHub Pages.
+Persian-first with a real English LTR page, four bilingual service pages, an
+about page and a separate portfolio route, statically built for GitHub Pages.
 
 For content truth and the PBS offer, read
 [`docs/PBS_Business_DNA.md`](docs/PBS_Business_DNA.md). For colour, typography,
@@ -18,6 +18,8 @@ logo and interaction standards, read
 | Agent rules and quality bar | this file |
 | Persian homepage content, metadata, narrative | `src/config/pbs/fa.ts` |
 | English homepage content, metadata, narrative | `src/config/pbs/en.ts` |
+| Service page content for both locales | `src/config/pbs/service-pages.ts` |
+| About page content for both locales | `src/config/pbs/about.ts` |
 | Portfolio content for both locales | `src/config/pbs/work.ts` |
 | Shared PBS palette, shape, locale links, resolved contacts | `src/config/pbs/shared.ts` |
 | Public contact identifiers | `src/config/pbs/contact.ts` |
@@ -33,6 +35,7 @@ logo and interaction standards, read
 | Client interaction modules | `src/lib/client/` |
 | Shared visual system | `src/styles/global.css` |
 | Reusable UI and sections | `src/components/ui/`, `src/components/sections/` |
+| Service and about page composition | `src/components/pages/` |
 | Portfolio composition | `src/components/work/WorkPage.astro` |
 | Deployment base/site derivation | `astro.config.mjs` |
 | Sitemap and robots routes | `src/pages/sitemap.xml.ts`, `src/pages/robots.txt.ts` |
@@ -46,8 +49,8 @@ competing instruction document for build, deployment, or design rules.
 
 1. Read `README.md` and this file. Read the PBS briefs for anything involving
    claims, services, positioning or visual identity.
-2. Inspect `git status`, `package.json`, both PBS locale configs, the work config,
-   and the relevant component before editing.
+2. Inspect `git status`, `package.json`, both PBS locale configs, the service,
+   about and work configs, and the relevant component before editing.
 3. Identify the narrowest owning layer: content/config, contact config, theme
    tokens, section composition, UI primitive, routes, or deployment.
 4. Make the change and run the narrowest relevant check, then the full build and
@@ -57,13 +60,19 @@ competing instruction document for build, deployment, or design rules.
 
 ## Architecture rules
 
-- **Two locale homepages and one portfolio route pair, one build.** Persian is
-  `/` and `/en/`; the portfolio is `/work/` and `/en/work/`. All are prerendered.
-  Do not turn English into a client-only toggle or a separate `CLIENT` build.
-- **Config first.** PBS copy, metadata, navigation, section order, contact
-  channel labels and calls to action belong in the locale configs. The portfolio
-  copy belongs in `src/config/pbs/work.ts`. The four public contact identifiers
-  belong only in `src/config/pbs/contact.ts`.
+- **Bilingual pages, one build.** Persian is `/` and `/en/`; the about page is
+  `/about/` and `/en/about/`; the four service pages are
+  `/services/{websites,apps,automation,growth}/` and their `/en/services/.../`
+  pairs; the portfolio is `/work/` and `/en/work/`. All are prerendered. Do not
+  turn English into a client-only toggle or a separate `CLIENT` build.
+- **Service and about copy has its own owner.** Service page copy belongs in
+  `src/config/pbs/service-pages.ts`; about page copy belongs in
+  `src/config/pbs/about.ts`. Route pairs belong in `src/lib/routes.ts`. Do not
+  duplicate this copy in a component or in the homepage locale configs.
+- **Config first.** Homepage copy, metadata, navigation, section order, contact
+  channel labels and calls to action belong in the locale configs. Service,
+  about and portfolio copy belongs in their owning config files. The four public
+  contact identifiers belong only in `src/config/pbs/contact.ts`.
 - **Components are client-agnostic.** Shared components receive `site`; they do
   not import a locale config or contain PBS copy, colours, or contact values.
 - **Theme tokens own visual identity.** Change palette, shape and spacing in
@@ -83,11 +92,13 @@ competing instruction document for build, deployment, or design rules.
 - **Metadata is per page and locale.** Each page has its own title, description,
   canonical, Open Graph locale and absolute `hreflang` set. The English
   canonical must never point at the Persian page. `x-default` is Persian.
-- **Sections are assembled by id.** `site.sections` controls order and presence;
-  `src/lib/sections.ts` derives each slot's anchor, heading id and navigation
-  entry, and `src/components/sections/index.ts` is the registry. A listed section
-  without content is dropped, and a fragment link with no rendered target fails
-  the build.
+- **Sections are assembled by id.** `site.sections` controls order and presence
+  on the homepage; `src/lib/sections.ts` derives each slot's anchor, heading id
+  and navigation entry, and `src/components/sections/index.ts` is the registry. A
+  listed section without content is dropped, and a fragment link with no rendered
+  target fails the build. Service and about pages are explicit page components
+  under `src/components/pages/`; they receive `site` and their typed content and
+  reuse the same UI primitives.
 - **Sections receive their slot.** A section module takes `{ site, section }` and
   uses `section.id` and `section.headingId`; it does not hardcode its DOM ids.
 - **Reuse before adding.** Use `Button`, `Section`, `SectionHeading`, `Eyebrow`,
@@ -218,17 +229,21 @@ There are exactly four public channels: WhatsApp, Bale, Telegram and phone.
 
 ## SEO rules
 
-- Both homepage locales and both portfolio locales have self-referencing
-  canonicals when indexable, reciprocal `hreflang` entries and an `x-default`
-  pointing at Persian.
-- `src/pages/sitemap.xml.ts` is the only sitemap source. It includes the work
-  pages only when both locale portfolios have at least one project. Do not
-  hand-maintain a second sitemap.
+- Every indexable locale page has a self-referencing canonical, reciprocal
+  `hreflang` entries and an `x-default` pointing at Persian. This includes both
+  homepages, both about pages, all eight service pages and published work pages.
+- `src/pages/sitemap.xml.ts` is the only sitemap source. It includes every
+  indexable page and includes the work pages only when both locale portfolios
+  have at least one project. Do not hand-maintain a second sitemap.
 - `src/pages/robots.txt.ts` references the absolute sitemap URL for the current
-  deployment base.
+  deployment base. Crawlers read `robots.txt` only at the origin root; production
+  is the apex custom domain `https://pbsmarketing.ir`, so root discovery is
+  correct. Project-path builds still need manual sitemap submission.
 - JSON-LD is generated from visible content only: Organization, WebSite, WebPage,
-  FAQPage on the homepage, and breadcrumb plus ItemList on a published work page.
-  Do not add ratings, reviews, prices or client claims that are not in the page.
+  FAQPage on the homepage, Service plus BreadcrumbList on a service page,
+  AboutPage plus BreadcrumbList on the about page, and breadcrumb plus ItemList
+  on a published work page. Do not add ratings, reviews, prices or client claims
+  that are not in the page.
 - Do not add meta keywords as a substitute for useful copy. Keep the real title,
   description, headings and body text aligned with the page intent.
 
@@ -237,6 +252,12 @@ There are exactly four public channels: WhatsApp, Bale, Telegram and phone.
 - Output must stay static (`output: "static"`). No server runtime or rewrites.
 - `astro.config.mjs` derives `site` and `base` from `SITE_URL` / `BASE_PATH`, a
   `public/CNAME` custom domain, or `GITHUB_REPOSITORY`. Keep that precedence.
+- Production is the apex custom domain `pbsmarketing.ir`, pinned in
+  `public/CNAME`. The apex needs GitHub Pages `A`/`AAAA` records and `www` a
+  `CNAME` to the repository host. Pages ignores the `CNAME` file for Actions
+  deployments, so the custom domain must also be set in Pages settings and
+  HTTPS enforced. Do not commit a second domain file or hardcode the host in
+  components.
 - All links and root-relative public assets must go through `href()`,
   `localeHref()`, `localePageHref()` or `pagePath()` in `src/lib/`. Config links
   stay plain fragments (`#contact`). Never hardcode `/pbs-website/`.
@@ -260,15 +281,17 @@ Run from the repository root:
 ```sh
 npm ci
 npm run check
-npm run build
+npm run build      # production domain from public/CNAME
 npm run verify
 SITE_URL=https://imdanialrashidi.github.io BASE_PATH=/pbs-website/ npm run build
 BASE_PATH=/pbs-website/ npm run preview
 ```
 
-Expected: no Astro/TypeScript diagnostics, a clean static build with `/`,
-`/en/`, `/work/`, `/en/work/`, `/404.html`, `/sitemap.xml` and `/robots.txt`,
-and no missing assets under the project base path.
+After the project-path regression, rerun `npm run verify` so `dist/` holds the
+production-domain build. Expected: no Astro/TypeScript diagnostics, a clean
+static build with `/`, `/en/`, `/about/`, `/en/about/`, the four
+`/services/.../` pairs, `/work/`, `/en/work/`, `/404.html`, `/sitemap.xml` and
+`/robots.txt`, and no missing assets under the project base path.
 
 Before delivery, verify as applicable:
 
@@ -276,8 +299,9 @@ Before delivery, verify as applicable:
   clipped CTAs, in both Persian RTL and English LTR.
 - Every route is independently prerendered with the correct title, description,
   canonical, `hreflang` and `x-default`; language switch and locale-local anchors
-  work under the project base path. An empty portfolio is `noindex` and absent
-  from the sitemap.
+  work at the custom-domain root and under the project base path. This includes
+  the about page, all four service pages and the published portfolio. An empty
+  portfolio is `noindex` and absent from the sitemap.
 - Menu open/close, Escape, focus containment/return, and 44px targets.
 - FAQ keyboard operation and open/closed state.
 - Contact channels with verified test values (links, safe targets, phone) and

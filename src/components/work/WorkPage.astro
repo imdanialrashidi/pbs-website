@@ -589,6 +589,16 @@ const closingAction = work.closing.action
     text-transform: none;
   }
 
+  @media (max-width: 759px) {
+    .work-empty__copy {
+      order: 1;
+    }
+
+    .work-empty__visual {
+      order: 2;
+    }
+  }
+
   @media (min-width: 760px) {
     .work-empty {
       grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);

@@ -1,0 +1,53 @@
+---
+interface Props {
+  label: string;
+  home: string;
+  homeHref: string;
+  current: string;
+}
+
+const { label, home, homeHref, current } = Astro.props;
+---
+
+<nav class="page-breadcrumb" aria-label={label}>
+  <div class="shell page-breadcrumb__inner">
+    <a href={homeHref}>{home}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{current}</span>
+  </div>
+</nav>
+
+<style>
+  .page-breadcrumb {
+    border-bottom: 1px solid var(--c-line);
+  }
+
+  .page-breadcrumb__inner {
+    display: flex;
+    min-height: 3.25rem;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--c-muted);
+    font-size: 0.76rem;
+    line-height: 1.5;
+  }
+
+  .page-breadcrumb a {
+    display: inline-flex;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    align-items: center;
+  }
+
+  .page-breadcrumb a:hover {
+    color: var(--c-action);
+  }
+
+  .page-breadcrumb [aria-current="page"] {
+    color: var(--c-ink);
+  }
+
+  :lang(fa) .page-breadcrumb__inner {
+    font-size: 0.8rem;
+  }
+</style>
