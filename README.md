@@ -360,8 +360,9 @@ is dropped; a dead fragment link fails the build.
 ## Deployment
 
 Production is the apex custom domain **https://pbsmarketing.ir**, served by
-GitHub Pages at the site root. `public/CNAME` is the build input that makes
-`astro.config.mjs` use `site: "https://pbsmarketing.ir"` and `base: "/"`. Because
+GitHub Pages at the site root and delivered through Cloudflare.
+`public/CNAME` is the build input that makes `astro.config.mjs` use
+`site: "https://pbsmarketing.ir"` and `base: "/"`. Because
 the site publishes from a custom GitHub Actions workflow, Pages ignores a
 `CNAME` file in the artifact: the same domain must also be set under
 **Settings → Pages → Custom domain**. Do not add a second domain file or
@@ -372,50 +373,151 @@ commit SHAs, installs from the lockfile, runs `npm run verify`, and requests onl
 the permissions Pages needs. A push to `main` or a manual workflow run publishes
 the build. This repository change does **not** deploy it.
 
-### One-time DNS setup at the .ir registrar
+### Why Cloudflare sits in front of Pages
 
-Add `pbsmarketing.ir` under **Settings → Pages → Custom domain** first, then
-create these records. GitHub recommends configuring the domain in the repository
-before DNS, which reduces subdomain-takeover risk.
+Every GitHub Pages custom domain is served from the same Fastly edge
+(`185.199.108-111.153`, Frankfurt for this zone). From Iranian consumer networks
+that edge is throttled and frequently reset mid-response, so a page never
+finishes loading even though the host is healthy. Measured from Tehran on
+2026-11-15:
 
-GitHub Pages' documented apex records:
+| Request | Result |
+| --- | --- |
+| `https://pbsmarketing.ir/` (59 KB HTML) | stalls after 1-15 KB, times out |
+| `https://pbsmarketing.ir/_astro/*.woff2` (111 KB) | stalls after 21 KB |
+| `https://pbsmarketing.ir/robots.txt` (69 B) | `200` in 0.5 s |
+| `pbsmarketing.ir` from 8 public nodes (IL, IT, PL, PT, RO, RU, SE, UA) | `200` in 0.18-0.33 s |
+| `https://cdnjs.cloudflare.com/...js` (Cloudflare, 600 KB) | `200` in 1.1 s |
+| `https://www.cloudflare.com/` (Cloudflare, 1.3 MB) | `200` in 1.7 s |
 
-| Type | Name | Value |
-| --- | --- | --- |
-| `A` | `@` | `185.199.108.153` |
-| `A` | `@` | `185.199.109.153` |
-| `A` | `@` | `185.199.110.153` |
-| `A` | `@` | `185.199.111.153` |
-| `AAAA` | `@` | `2606:50c0:8000::153` |
-| `AAAA` | `@` | `2606:50c0:8001::153` |
-| `AAAA` | `@` | `2606:50c0:8002::153` |
-| `AAAA` | `@` | `2606:50c0:8003::153` |
-| `CNAME` | `www` | `imdanialrashidi.github.io` |
+The build, the DNS and the certificate are fine; the last mile to GitHub Pages
+is not. Cloudflare terminates that last mile on an edge Iranian networks can
+reach, and adds HTTP/3, Brotli, edge caching and a proxy that keeps answering
+while the origin is slow. Pages keeps serving the artifact; it stops being the
+public entry point.
 
-Remove any parked apex `A`/`CNAME` records at the registrar. Verify from a
-machine that can query the public DNS:
+**Never** leave `pbsmarketing.ir` or `www.pbsmarketing.ir` on **DNS only** (grey
+cloud) in production. That is the configuration that times out.
+
+### One-time DNS setup in Cloudflare
+
+The `.ir` registrar delegates the zone to Cloudflare (`lila` and `vicky`
+nameservers). All public records live in that zone.
+
+| Type | Name | Content | Proxy status |
+| --- | --- | --- | --- |
+| `A` | `@` | `185.199.108.153` | **Proxied** |
+| `A` | `@` | `185.199.109.153` | **Proxied** |
+| `A` | `@` | `185.199.110.153` | **Proxied** |
+| `A` | `@` | `185.199.111.153` | **Proxied** |
+| `CNAME` | `www` | `imdanialrashidi.github.io` | **Proxied** |
+
+- No apex `AAAA` records. While the names are proxied, Cloudflare answers `AAAA`
+  from its own network; a stored GitHub Pages `AAAA` would only point the origin
+  at a host that is unreachable from the networks this proxy exists for.
+- `www` points at the repository host, never at the apex, so Cloudflare's
+  flattening still has a real origin.
+- Remove parked `A`/`CNAME` records for `@` and `www`, and keep `MX`/`TXT`
+  records unproxied.
+
+Two things caught people out when this zone was switched over:
+
+- **Universal SSL must be active.** The edge certificate exists per zone, and
+  Cloudflare issues it once the zone has a proxied record. If
+  **SSL/TLS → Edge Certificates → Universal SSL** still reads *pending* after
+  the switch, wait (usually minutes, up to 24 h) before assuming a DNS fault.
+- **GitHub will complain about the DNS check.** With the records proxied, Pages
+  settings cannot see `185.199.*` and may show a DNS warning. That warning is
+  cosmetic: the site, the certificate and `Enforce HTTPS` keep working. It only
+  matters when the certificate has to be renewed; see below.
+
+Verify from a machine that can query public DNS:
 
 ```sh
-dig +short pbsmarketing.ir A
-dig +short pbsmarketing.ir AAAA
-dig +short www.pbsmarketing.ir CNAME
+dig +short pbsmarketing.ir A          # Cloudflare addresses, not 185.199.*
+dig +short www.pbsmarketing.ir        # the same Cloudflare addresses
+curl -sSI https://pbsmarketing.ir/ | grep -i -E '^server|^cf-ray'
 ```
 
-The apex must return the four GitHub Pages addresses and `www` must return the
-repository host. Until the domain resolves, Pages cannot pass the custom-domain
-check or issue a certificate.
+`server: cloudflare` plus a `cf-ray` header means the proxy is on. A `185.199.*`
+answer means the record is still DNS only.
 
-### Enable Pages and HTTPS
+### Certificate and proxy order
 
-1. Push the release commit to `main`, or run the workflow manually.
-2. In GitHub, open **Settings → Pages** and set **Source** to **GitHub Actions**.
-3. Enter `pbsmarketing.ir` under **Custom domain** and save. Keep the `www` DNS
-   record; GitHub redirects `www` to the apex.
-4. Wait for the DNS check to pass, then enable **Enforce HTTPS**. GitHub issues
-   the certificate after DNS resolves.
-5. Confirm `https://pbsmarketing.ir/`, `/en/`, `/about/`, the four service pairs,
-   `/work/` and `/404.html`, then submit `https://pbsmarketing.ir/sitemap.xml`
-   in Google Search Console and Bing Webmaster Tools.
+GitHub issues and renews the Pages certificate itself. The current one covers
+`pbsmarketing.ir` and `www.pbsmarketing.ir` (Let's Encrypt, issued 2026-11-15,
+expires 2027-02-13). GitHub verifies the domain through DNS, so the order is:
+
+1. Push the release commit to `main`, or run the workflow manually, and set
+   **Settings → Pages → Source** to **GitHub Actions**.
+2. Add `pbsmarketing.ir` under **Custom domain** while the records are still
+   **DNS only**, and wait for the certificate to read **approved** and
+   **Enforce HTTPS** to become available.
+3. Then switch both records to **Proxied**, set the SSL mode to **Full (strict)**,
+   and keep **Enforce HTTPS** on in Pages.
+
+If a renewal ever stalls while proxied, set the records back to **DNS only** for
+a day, let GitHub renew, and re-enable the proxy. Check
+`https_certificate.expires_at` in
+`https://api.github.com/repos/imdanialrashidi/pbs-website/pages` around each
+renewal window.
+
+### Cloudflare settings for a static GitHub Pages origin
+
+Set once, in the `pbsmarketing.ir` zone. These replace the server behaviour
+GitHub Pages cannot express: caching, headers and redirects.
+
+**SSL/TLS → Overview**
+- Encryption mode **Full (strict)**. `Flexible` loops, because Pages already
+  force-redirects HTTP to HTTPS.
+- **Always Use HTTPS** on, **Automatic HTTPS Rewrites** on.
+- **Minimum TLS 1.2**, **TLS 1.3** on, **HTTP/3** on, **0-RTT** on.
+- **HSTS** on, `max-age=15552000; includeSubDomains`. Add `preload` only after the
+  zone has been stable for months.
+
+**Speed**
+- **Brotli** on, **Tiered Cache** on.
+- **Rocket Loader**, **Auto Minify**, **Early Hints** off. Pages already serves
+  hashed, minified assets, and Rocket Loader only reorders scripts.
+
+**Caching → Cache Rules**
+1. `starts_with(http.request.uri.path, "/_astro/")` → *Eligible for cache*, Edge
+   TTL **1 year**, Browser TTL **1 year**. Astro hashes these filenames, so a
+   cached copy can never be stale. This is the rule that stops a slow origin from
+   costing a font download.
+2. Optional: everything else → *Eligible for cache*, Edge TTL **1 hour**, Browser
+   TTL **respect origin**. Pages caps every origin response at `max-age=600`.
+   Enable this rule only together with the purge step below.
+
+**Rules → Redirect Rules**
+- `http.host eq "www.pbsmarketing.ir"` → dynamic **301** to
+  `concat("https://pbsmarketing.ir", http.request.uri.path)`, *preserve query
+  string*. Saves a round trip through Pages' own `www` redirect.
+
+**Rules → Transform Rules → Modify Response Header** (all incoming requests)
+- `X-Content-Type-Options: nosniff`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Permissions-Policy: camera=(), geolocation=(), microphone=()`
+- `X-Frame-Options: SAMEORIGIN`
+
+Pages cannot set response headers; the edge is the only place these can live.
+
+**Do not enable**: Bot Fight Mode (it challenges crawlers), Under Attack Mode as
+a permanent setting, Rocket Loader, or any analytics/script injection. The site
+ships no third-party request and has no consent layer to gate one.
+
+### Purge the edge after a deploy
+
+Only needed for the optional cache-everything rule. Add two repository secrets:
+
+| Secret | Scope |
+| --- | --- |
+| `CLOUDFLARE_ZONE_ID` | the `pbsmarketing.ir` zone id |
+| `CLOUDFLARE_API_TOKEN` | API token with `Zone → Cache Purge → Purge` only |
+
+The deploy job then purges the zone after `actions/deploy-pages` succeeds. With
+no secrets the step is skipped, and Cloudflare keeps respecting the origin's
+`max-age=600`.
 
 `astro.config.mjs` derives `site` and `base` in this order: `SITE_URL` /
 `BASE_PATH`, then `public/CNAME`, then GitHub repository values. A project
@@ -426,17 +528,28 @@ the root. Keep `output: "static"`.
 The project-path build is a compatibility regression, not the production shape.
 The static `404.html` is generated; there is no server rewrite.
 
+### After launch
+
+1. Confirm `https://pbsmarketing.ir/`, `/en/`, `/about/`, the four service pairs,
+   `/work/` and `/404.html` load from a normal mobile connection, not only from
+   the office network.
+2. Submit `https://pbsmarketing.ir/sitemap.xml` in Google Search Console and Bing
+   Webmaster Tools.
+
 ### Release checklist
 
 - [ ] `src/config/pbs/contact.ts` holds four verified contact values, or the
       launch explicitly accepts the honest "details coming soon" state.
 - [ ] `public/CNAME` contains exactly `pbsmarketing.ir`.
-- [ ] Apex `A`/`AAAA` and `www` `CNAME` resolve to GitHub Pages.
+- [ ] The apex `A` records and the `www` `CNAME` are **Proxied** in Cloudflare.
+- [ ] `dig +short pbsmarketing.ir A` returns Cloudflare addresses, and
+      `curl -sSI https://pbsmarketing.ir/` returns `server: cloudflare`.
+- [ ] SSL mode is **Full (strict)** and Pages still has **Enforce HTTPS** on.
 - [ ] Pages source is **GitHub Actions** and the custom domain is verified.
-- [ ] **Enforce HTTPS** is on.
 - [ ] `npm run verify` passes on the release commit.
 - [ ] `https://pbsmarketing.ir/robots.txt` and `/sitemap.xml` are live and
       reference the production host.
+- [ ] `/_astro/*` answers with a one-year browser TTL.
 - [ ] The sitemap is submitted after DNS is live.
 
 ## Verification
@@ -476,6 +589,20 @@ Browser checks used for this site:
 - Production HTML at the custom-domain root: favicon, manifest, CSS, WOFF2, logo,
   canonical, `hreflang`, Open Graph, JSON-LD, sitemap, robots and the static 404
   all use `https://pbsmarketing.ir/`.
+
+### Edge checks (production, after the proxy is on)
+
+```sh
+curl -sSI https://pbsmarketing.ir/ | grep -i -E '^server|^cf-ray|^cache-control'
+asset=$(curl -sS https://pbsmarketing.ir/ | grep -o '/_astro/[^"]*\.css' | head -1)
+curl -sSI "https://pbsmarketing.ir$asset" | grep -i -E '^cache-control|^cf-cache-status'
+curl -sS -o /dev/null -w 'http=%{http_code} version=%{http_version} total=%{time_total}s size=%{size_download}\n' \
+  https://pbsmarketing.ir/
+```
+
+Expected: `server: cloudflare`, HTTP/2 or HTTP/3 negotiated, a 59 KB page in about
+a second from Iran, and a one-year `cache-control` on the hashed `/_astro/*`
+asset. `cf-cache-status: HIT` on the second request confirms the edge cache.
 
 Lighthouse lab results and field Core Web Vitals are not guaranteed by the build
 itself. If you report them, use a production build and record the exact URL,

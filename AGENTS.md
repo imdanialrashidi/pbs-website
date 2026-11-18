@@ -253,11 +253,14 @@ There are exactly four public channels: WhatsApp, Bale, Telegram and phone.
 - `astro.config.mjs` derives `site` and `base` from `SITE_URL` / `BASE_PATH`, a
   `public/CNAME` custom domain, or `GITHUB_REPOSITORY`. Keep that precedence.
 - Production is the apex custom domain `pbsmarketing.ir`, pinned in
-  `public/CNAME`. The apex needs GitHub Pages `A`/`AAAA` records and `www` a
-  `CNAME` to the repository host. Pages ignores the `CNAME` file for Actions
-  deployments, so the custom domain must also be set in Pages settings and
-  HTTPS enforced. Do not commit a second domain file or hardcode the host in
-  components.
+  `public/CNAME`. Cloudflare is the DNS host and must stay **Proxied** (orange
+  cloud) in front of GitHub Pages: the four Pages `A` records and the `www`
+  `CNAME` to the repository host are origin records, not public answers. A
+  DNS-only production domain is throttled to unusable from Iranian networks.
+  Pages ignores the `CNAME` file for Actions deployments, so the custom domain
+  must also be set in Pages settings and HTTPS enforced. Do not commit a second
+  domain file or hardcode the host in components. Details: README
+  "Deployment".
 - All links and root-relative public assets must go through `href()`,
   `localeHref()`, `localePageHref()` or `pagePath()` in `src/lib/`. Config links
   stay plain fragments (`#contact`). Never hardcode `/pbs-website/`.
